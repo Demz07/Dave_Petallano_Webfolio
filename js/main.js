@@ -6,236 +6,413 @@
   "use strict";
 
   // ─────────────────────────────────────────
-  // 1. PARTICLE NETWORK BACKGROUND (Canvas)
+  // 1. CLI TERMINAL BACKGROUND (Canvas)
   // ─────────────────────────────────────────
   const ParticleNetwork = (() => {
     const canvas = document.getElementById("particleCanvas");
     if (!canvas) return { init: () => {} };
 
     const ctx = canvas.getContext("2d");
-    let particles = [];
-    let animationId;
     let mouse = { x: null, y: null };
+    let time = 0;
+
+    const codeChars =
+      "01{}[]<>/\\|;:=+-_~#$@!?.abcdef0123456789ABCDEF=>()const let var function return if else for while import export class new this".split(
+        "",
+      );
+    const keywords = [
+      "npm start",
+      "git push",
+      "ssh root@",
+      "chmod 755",
+      "grep -r",
+      "curl -X",
+      "docker run",
+      "ping 0.0.0.0",
+      "sudo rm",
+      "cat /dev/",
+      "ls -la",
+      "cd ~/dev",
+      "node app",
+      "python3",
+      "make build",
+      "gcc -o",
+      "SELECT *",
+      "DROP TABLE",
+      "INSERT INTO",
+      "dotnet run",
+      ">> output",
+      "./deploy.sh",
+      "tail -f log",
+      "ps aux",
+      "kill -9",
+      "echo $PATH",
+      "export ENV",
+      "tar -xvf",
+      "wget http",
+      "nano conf",
+    ];
 
     const config = {
-      particleCount: 200,
-      maxDistance: 160,
-      speed: 0.25,
-      mouseRadius: 250,
-      // Glow layers
-      glowLayers: 3,
+      gridSpacing: 60,
+      gridOpacity: 0.025,
+      gridDotSize: 1,
+      rainColumnWidth: 22,
+      rainCharSize: 13,
+      rainBaseSpeed: 0.3,
+      cursorNodes: 25,
+      nodeMaxDist: 200,
+      commandCount: 8,
+      commandSpeed: 0.4,
+      mouseRadius: 220,
     };
 
     if (window.innerWidth < 768) {
-      config.particleCount = 90;
-      config.maxDistance = 120;
-    } else if (window.innerWidth < 1200) {
-      config.particleCount = 150;
+      config.cursorNodes = 12;
+      config.commandCount = 4;
+      config.gridSpacing = 80;
     }
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    let rainColumns = [];
+    let cursorNodes = [];
+    let floatingCommands = [];
+
+    const monoFont = '"JetBrains Mono", "Fira Code", "Consolas", monospace';
+
+    function drawGrid() {
+      const spacing = config.gridSpacing;
+      for (let x = spacing; x < canvas.width; x += spacing) {
+        for (let y = spacing; y < canvas.height; y += spacing) {
+          let opacity = config.gridOpacity;
+          if (mouse.x !== null) {
+            const dx = x - mouse.x;
+            const dy = y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < config.mouseRadius) {
+              const boost = (1 - dist / config.mouseRadius) * 0.12;
+              opacity += boost;
+            }
+          }
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.fillRect(
+            x - config.gridDotSize / 2,
+            y - config.gridDotSize / 2,
+            config.gridDotSize,
+            config.gridDotSize,
+          );
+        }
+      }
     }
 
-    class Particle {
+    class RainColumn {
+      constructor(x) {
+        this.x = x;
+        this.chars = [];
+        this.speed = Math.random() * config.rainBaseSpeed + 0.15;
+        this.charCount = Math.floor(Math.random() * 12) + 5;
+        this.headY = Math.random() * canvas.height * -1;
+        for (let i = 0; i < this.charCount; i++) {
+          this.chars.push({
+            char: codeChars[Math.floor(Math.random() * codeChars.length)],
+            changeTimer: Math.floor(Math.random() * 200) + 50,
+            tick: 0,
+          });
+        }
+      }
+      update() {
+        this.headY += this.speed;
+        if (this.headY - this.charCount * config.rainCharSize > canvas.height) {
+          this.headY = Math.random() * canvas.height * -0.5 - 100;
+          this.speed = Math.random() * config.rainBaseSpeed + 0.15;
+        }
+        this.chars.forEach((c) => {
+          c.tick++;
+          if (c.tick >= c.changeTimer) {
+            c.char = codeChars[Math.floor(Math.random() * codeChars.length)];
+            c.tick = 0;
+            c.changeTimer = Math.floor(Math.random() * 200) + 50;
+          }
+        });
+      }
+      draw() {
+        ctx.font = `${config.rainCharSize}px ${monoFont}`;
+        this.chars.forEach((c, i) => {
+          const y = this.headY - i * config.rainCharSize;
+          if (y < -20 || y > canvas.height + 20) return;
+          const fadeRatio = 1 - i / this.charCount;
+          let opacity = fadeRatio * 0.08 + 0.01;
+          if (i === 0) opacity = 0.18;
+          if (i === 1) opacity = 0.12;
+          if (mouse.x !== null) {
+            const dx = this.x - mouse.x;
+            const dy = y - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < config.mouseRadius) {
+              const boost = (1 - dist / config.mouseRadius) * 0.25;
+              opacity += boost * fadeRatio;
+            }
+          }
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(opacity, 0.5)})`;
+          ctx.fillText(c.char, this.x, y);
+        });
+      }
+    }
+
+    function createRain() {
+      rainColumns = [];
+      const colCount = Math.floor(canvas.width / config.rainColumnWidth);
+      for (let i = 0; i < colCount; i++) {
+        if (Math.random() < 0.35) {
+          const x = i * config.rainColumnWidth + Math.random() * 10;
+          rainColumns.push(new RainColumn(x));
+        }
+      }
+    }
+
+    class CursorNode {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * config.speed;
-        this.vy = (Math.random() - 0.5) * config.speed;
-
-        // Varied sizes — some tiny, some bigger focal points
-        const roll = Math.random();
-        if (roll < 0.7) {
-          // 70% small particles
-          this.size = Math.random() * 1.5 + 0.5;
-          this.glowSize = this.size * 6;
-          this.baseOpacity = Math.random() * 0.3 + 0.15;
-          this.glowOpacity = 0.04;
-        } else if (roll < 0.92) {
-          // 22% medium particles
-          this.size = Math.random() * 2 + 1.5;
-          this.glowSize = this.size * 8;
-          this.baseOpacity = Math.random() * 0.4 + 0.25;
-          this.glowOpacity = 0.07;
-        } else {
-          // 8% large bright particles
-          this.size = Math.random() * 2.5 + 2.5;
-          this.glowSize = this.size * 12;
-          this.baseOpacity = Math.random() * 0.3 + 0.5;
-          this.glowOpacity = 0.12;
-        }
-
-        // Pulse animation — each particle pulses at different speed
-        this.pulseSpeed = Math.random() * 0.02 + 0.005;
-        this.pulseOffset = Math.random() * Math.PI * 2;
-        this.time = 0;
+        this.vx = (Math.random() - 0.5) * 0.15;
+        this.vy = (Math.random() - 0.5) * 0.15;
+        this.blinkSpeed = Math.random() * 0.03 + 0.01;
+        this.blinkOffset = Math.random() * Math.PI * 2;
+        this.size = Math.random() * 3 + 4;
+        this.type = Math.random() > 0.6 ? "block" : "underscore";
+        this.label = this.generateLabel();
       }
-
+      generateLabel() {
+        const labels = [
+          "node_0x",
+          "ptr_",
+          "buf[",
+          "0xff",
+          "pid:",
+          "tcp:",
+          "usr@",
+          "dev/",
+          "sys:",
+          "io_",
+          "mem:",
+          "cpu%",
+          "eth0",
+          "tmp/",
+          "var_",
+          "src>",
+          "out:",
+          "log>",
+          "err!",
+          "ack_",
+        ];
+        return (
+          labels[Math.floor(Math.random() * labels.length)] +
+          Math.floor(Math.random() * 999)
+        );
+      }
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        this.time += this.pulseSpeed;
-
-        // Wrap around edges smoothly
-        if (this.x < -10) this.x = canvas.width + 10;
-        if (this.x > canvas.width + 10) this.x = -10;
-        if (this.y < -10) this.y = canvas.height + 10;
-        if (this.y > canvas.height + 10) this.y = -10;
-
-        // Mouse interaction — particles gently pushed away
+        if (this.x < 20 || this.x > canvas.width - 20) this.vx *= -1;
+        if (this.y < 20 || this.y > canvas.height - 20) this.vy *= -1;
+        if (mouse.x !== null) {
+          const dx = this.x - mouse.x;
+          const dy = this.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < config.mouseRadius * 0.7) {
+            const force =
+              (config.mouseRadius * 0.7 - dist) / (config.mouseRadius * 0.7);
+            this.x += (dx / dist) * force * 0.4;
+            this.y += (dy / dist) * force * 0.4;
+          }
+        }
+      }
+      draw(currentTime) {
+        const blink =
+          Math.sin(currentTime * this.blinkSpeed + this.blinkOffset) * 0.5 +
+          0.5;
+        let opacity = blink * 0.3 + 0.05;
+        let isNearMouse = false;
         if (mouse.x !== null) {
           const dx = this.x - mouse.x;
           const dy = this.y - mouse.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < config.mouseRadius) {
-            const force = (config.mouseRadius - dist) / config.mouseRadius;
-            const angle = Math.atan2(dy, dx);
-            this.x += Math.cos(angle) * force * 1.2;
-            this.y += Math.sin(angle) * force * 1.2;
+            const boost = (1 - dist / config.mouseRadius) * 0.4;
+            opacity += boost;
+            isNearMouse = dist < config.mouseRadius * 0.6;
           }
         }
-      }
-
-      draw() {
-        // Pulse effect — opacity breathes
-        const pulse = Math.sin(this.time + this.pulseOffset) * 0.3 + 0.7;
-        const currentOpacity = this.baseOpacity * pulse;
-        const currentGlowOpacity = this.glowOpacity * pulse;
-
-        // Layer 1: Outer glow (large, soft)
-        const outerGrad = ctx.createRadialGradient(
-          this.x,
-          this.y,
-          0,
-          this.x,
-          this.y,
-          this.glowSize,
-        );
-        outerGrad.addColorStop(0, `rgba(255, 255, 255, ${currentGlowOpacity})`);
-        outerGrad.addColorStop(
-          0.4,
-          `rgba(200, 220, 255, ${currentGlowOpacity * 0.4})`,
-        );
-        outerGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.glowSize, 0, Math.PI * 2);
-        ctx.fillStyle = outerGrad;
-        ctx.fill();
-
-        // Layer 2: Inner glow (medium)
-        const innerGrad = ctx.createRadialGradient(
-          this.x,
-          this.y,
-          0,
-          this.x,
-          this.y,
-          this.size * 3,
-        );
-        innerGrad.addColorStop(
-          0,
-          `rgba(255, 255, 255, ${currentOpacity * 0.6})`,
-        );
-        innerGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-        ctx.fillStyle = innerGrad;
-        ctx.fill();
-
-        // Layer 3: Core (bright center dot)
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${currentOpacity})`;
-        ctx.fill();
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(opacity, 0.7)})`;
+        if (this.type === "block") {
+          ctx.fillRect(
+            this.x - this.size / 2,
+            this.y - this.size / 2,
+            this.size,
+            this.size,
+          );
+        } else {
+          ctx.fillRect(this.x - this.size / 2, this.y + 2, this.size, 2);
+        }
+        if (isNearMouse) {
+          ctx.font = `9px ${monoFont}`;
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.7})`;
+          ctx.fillText(this.label, this.x + this.size, this.y - 4);
+        }
       }
     }
 
-    function createParticles() {
-      particles = [];
-      for (let i = 0; i < config.particleCount; i++) {
-        particles.push(new Particle());
+    function createNodes() {
+      cursorNodes = [];
+      for (let i = 0; i < config.cursorNodes; i++) {
+        cursorNodes.push(new CursorNode());
       }
     }
 
     function drawConnections() {
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
+      for (let i = 0; i < cursorNodes.length; i++) {
+        for (let j = i + 1; j < cursorNodes.length; j++) {
+          const a = cursorNodes[i];
+          const b = cursorNodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < config.maxDistance) {
-            const opacity = (1 - dist / config.maxDistance) * 0.15;
-
-            // Glowing connection lines
-            // Outer glow line
+          if (dist < config.nodeMaxDist) {
+            const opacity = (1 - dist / config.nodeMaxDist) * 0.1;
+            ctx.save();
+            ctx.setLineDash([3, 6]);
+            ctx.lineDashOffset = -time * 0.5;
             ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(180, 200, 255, ${opacity * 0.3})`;
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-
-            // Core line
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
             ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-            ctx.lineWidth = 0.6;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
+            ctx.restore();
+            if (mouse.x !== null) {
+              const midX = (a.x + b.x) / 2;
+              const midY = (a.y + b.y) / 2;
+              const mouseDist = Math.sqrt(
+                Math.pow(midX - mouse.x, 2) + Math.pow(midY - mouse.y, 2),
+              );
+              if (mouseDist < config.mouseRadius * 0.8) {
+                const boost =
+                  (1 - mouseDist / (config.mouseRadius * 0.8)) * 0.15;
+                ctx.save();
+                ctx.setLineDash([3, 6]);
+                ctx.lineDashOffset = -time * 0.5;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.strokeStyle = `rgba(255, 255, 255, ${boost})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.restore();
+              }
+            }
           }
         }
       }
     }
 
-    // Mouse proximity highlight — particles near mouse glow brighter
-    function drawMouseProximityGlow() {
-      if (mouse.x === null) return;
-
-      particles.forEach((p) => {
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < config.mouseRadius) {
-          const intensity = 1 - dist / config.mouseRadius;
-          const extraGlowSize = p.glowSize * (1 + intensity * 0.8);
-          const extraOpacity = intensity * 0.08;
-
-          const mouseGrad = ctx.createRadialGradient(
-            p.x,
-            p.y,
-            0,
-            p.x,
-            p.y,
-            extraGlowSize,
-          );
-          mouseGrad.addColorStop(0, `rgba(200, 220, 255, ${extraOpacity})`);
-          mouseGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, extraGlowSize, 0, Math.PI * 2);
-          ctx.fillStyle = mouseGrad;
-          ctx.fill();
+    class FloatingCommand {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * config.commandSpeed;
+        this.vy = (Math.random() - 0.5) * 0.1;
+        this.text =
+          "$ " + keywords[Math.floor(Math.random() * keywords.length)];
+        this.opacity = Math.random() * 0.04 + 0.015;
+        this.fontSize = Math.floor(Math.random() * 3) + 10;
+        this.life = 0;
+        this.maxLife = Math.random() * 2000 + 1000;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life++;
+        if (
+          this.life > this.maxLife ||
+          this.x < -200 ||
+          this.x > canvas.width + 200 ||
+          this.y < -50 ||
+          this.y > canvas.height + 50
+        ) {
+          this.reset();
         }
-      });
+      }
+      draw() {
+        const lifeRatio = this.life / this.maxLife;
+        let fade = 1;
+        if (lifeRatio < 0.1) fade = lifeRatio / 0.1;
+        if (lifeRatio > 0.8) fade = (1 - lifeRatio) / 0.2;
+        let opacity = this.opacity * Math.max(fade, 0);
+        if (mouse.x !== null) {
+          const dx = this.x - mouse.x;
+          const dy = this.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < config.mouseRadius) {
+            const boost = (1 - dist / config.mouseRadius) * 0.12;
+            opacity += boost;
+          }
+        }
+        ctx.font = `${this.fontSize}px ${monoFont}`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(opacity, 0.3)})`;
+        ctx.fillText(this.text, this.x, this.y);
+      }
+    }
+
+    function createCommands() {
+      floatingCommands = [];
+      for (let i = 0; i < config.commandCount; i++) {
+        floatingCommands.push(new FloatingCommand());
+      }
+    }
+
+    function drawMouseSpotlight() {
+      if (mouse.x === null) return;
+      const grad = ctx.createRadialGradient(
+        mouse.x,
+        mouse.y,
+        0,
+        mouse.x,
+        mouse.y,
+        config.mouseRadius,
+      );
+      grad.addColorStop(0, "rgba(255, 255, 255, 0.015)");
+      grad.addColorStop(0.5, "rgba(255, 255, 255, 0.005)");
+      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(
+        mouse.x - config.mouseRadius,
+        mouse.y - config.mouseRadius,
+        config.mouseRadius * 2,
+        config.mouseRadius * 2,
+      );
     }
 
     function animate() {
+      time++;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach((p) => {
-        p.update();
-        p.draw();
+      drawGrid();
+      rainColumns.forEach((col) => {
+        col.update();
+        col.draw();
       });
-
+      floatingCommands.forEach((cmd) => {
+        cmd.update();
+        cmd.draw();
+      });
+      cursorNodes.forEach((node) => {
+        node.update();
+        node.draw(time);
+      });
       drawConnections();
-      drawMouseProximityGlow();
-
-      animationId = requestAnimationFrame(animate);
+      drawMouseSpotlight();
+      requestAnimationFrame(animate);
     }
 
     function init() {
@@ -243,21 +420,20 @@
         canvas.style.display = "none";
         return;
       }
-
-      resize();
-      createParticles();
+      function setup() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        createRain();
+        createNodes();
+        createCommands();
+      }
+      setup();
       animate();
-
-      window.addEventListener("resize", () => {
-        resize();
-        createParticles();
-      });
-
+      window.addEventListener("resize", setup);
       window.addEventListener("mousemove", (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
       });
-
       window.addEventListener("mouseout", () => {
         mouse.x = null;
         mouse.y = null;
@@ -279,7 +455,6 @@
       "Driven by a passion for problem-solving.",
       "Continuously learning and refining my craft.",
       "Ready to contribute, collaborate, and grow.",
-      "Problem Solver",
     ];
 
     let titleIndex = 0;
@@ -301,7 +476,7 @@
       let delay = isDeleting ? 40 : 80;
 
       if (!isDeleting && charIndex === current.length) {
-        delay = 2500; // Pause at full text
+        delay = 2500;
         isDeleting = true;
       } else if (isDeleting && charIndex === 0) {
         isDeleting = false;
@@ -354,7 +529,6 @@
       );
 
       reveals.forEach((el) => {
-        // Don't re-observe hero elements
         if (!el.closest(".hero")) {
           observer.observe(el);
         }
@@ -380,7 +554,6 @@
         nav.classList.remove("nav--scrolled");
       }
 
-      // Update active link
       const sections = document.querySelectorAll(".section, .hero");
       let current = "";
 
@@ -415,21 +588,15 @@
 
     function init() {
       window.addEventListener("scroll", handleScroll, { passive: true });
-
       if (toggle) {
         toggle.addEventListener("click", toggleMenu);
       }
-
-      // Close menu on link click
       navLinks.forEach((link) => {
         link.addEventListener("click", closeMenu);
       });
-
-      // Close menu on escape
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeMenu();
       });
-
       handleScroll();
     }
 
@@ -471,11 +638,9 @@
     async function handleSubmit(e) {
       e.preventDefault();
 
-      // Hide previous messages
-      successMsg.hidden = true;
-      errorMsg.hidden = true;
+      if (successMsg) successMsg.hidden = true;
+      if (errorMsg) errorMsg.hidden = true;
 
-      // Loading state
       submitBtn.classList.add("contact__submit-btn--loading");
       submitBtn.disabled = true;
 
@@ -486,18 +651,16 @@
           method: "POST",
           body: formData,
         });
-
         const result = await response.json();
-
         if (result.success) {
-          successMsg.hidden = false;
+          if (successMsg) successMsg.hidden = false;
           form.reset();
         } else {
-          errorMsg.hidden = false;
+          if (errorMsg) errorMsg.hidden = false;
         }
       } catch (err) {
         console.error("Form submission error:", err);
-        errorMsg.hidden = false;
+        if (errorMsg) errorMsg.hidden = false;
       } finally {
         submitBtn.classList.remove("contact__submit-btn--loading");
         submitBtn.disabled = false;
@@ -512,7 +675,7 @@
   })();
 
   // ─────────────────────────────────────────
-  // 7. SMOOTH SCROLL (for Safari fallback)
+  // 7. SMOOTH SCROLL
   // ─────────────────────────────────────────
   const SmoothScroll = (() => {
     function init() {
@@ -520,18 +683,13 @@
         anchor.addEventListener("click", function (e) {
           const targetId = this.getAttribute("href");
           if (targetId === "#") return;
-
           const target = document.querySelector(targetId);
           if (target) {
             e.preventDefault();
-            const offset = 80; // nav height
+            const offset = 80;
             const top =
               target.getBoundingClientRect().top + window.scrollY - offset;
-
-            window.scrollTo({
-              top,
-              behavior: "smooth",
-            });
+            window.scrollTo({ top, behavior: "smooth" });
           }
         });
       });
@@ -547,6 +705,202 @@
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
   // ─────────────────────────────────────────
+  // 9. ANTI-GRAVITY TILT SYSTEM
+  // ─────────────────────────────────────────
+  const AntiGravityTilt = (() => {
+    function init() {
+      if ("ontouchstart" in window) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const panels = document.querySelectorAll(
+        ".project-card, .skills__category, .about__bio-panel, .about__philosophy-panel, .contact__info-panel, .contact__form",
+      );
+
+      panels.forEach((panel) => {
+        panel.setAttribute("data-tilt", "");
+
+        const glow = document.createElement("div");
+        glow.classList.add("tilt-glow");
+        panel.style.position = "relative";
+        panel.style.overflow = "hidden";
+        panel.insertBefore(glow, panel.firstChild);
+
+        panel.addEventListener("mouseenter", () => {
+          panel.style.transition = "none";
+        });
+
+        panel.addEventListener("mousemove", (e) => {
+          const rect = panel.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const intensity = 12;
+          const rotateX = ((y - centerY) / centerY) * -intensity;
+          const rotateY = ((x - centerX) / centerX) * intensity;
+          const distFromCenter = Math.sqrt(
+            Math.pow((x - centerX) / centerX, 2) +
+              Math.pow((y - centerY) / centerY, 2),
+          );
+          const liftAmount = Math.max(0, (1 - distFromCenter) * 12);
+
+          panel.style.transform = `
+            perspective(1200px)
+            rotateX(${rotateX}deg)
+            rotateY(${rotateY}deg)
+            translateY(-${liftAmount}px)
+            scale3d(1.02, 1.02, 1.02)
+          `;
+
+          const glowX = (x / rect.width) * 100;
+          const glowY = (y / rect.height) * 100;
+          glow.style.setProperty("--glow-x", `${glowX}%`);
+          glow.style.setProperty("--glow-y", `${glowY}%`);
+        });
+
+        panel.addEventListener("mouseleave", () => {
+          panel.style.transition = `
+            transform 0.6s cubic-bezier(0.03, 0.98, 0.52, 0.99),
+            box-shadow 0.6s ease
+          `;
+          panel.style.transform = `
+            perspective(1200px)
+            rotateX(0deg) rotateY(0deg)
+            translateY(0px) scale3d(1, 1, 1)
+          `;
+        });
+      });
+
+      document.querySelectorAll(".btn").forEach((btn) => {
+        btn.setAttribute("data-magnetic", "");
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
+  // 10. MAGNETIC BUTTONS
+  // ─────────────────────────────────────────
+  const MagneticButtons = (() => {
+    function init() {
+      if ("ontouchstart" in window) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const buttons = document.querySelectorAll(".btn[data-magnetic]");
+      buttons.forEach((btn) => {
+        const strength = 0.3;
+        btn.addEventListener("mousemove", (e) => {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          btn.style.transform = `translate(${x * strength}px, ${y * strength}px) translateY(-2px)`;
+        });
+        btn.addEventListener("mouseleave", () => {
+          btn.style.transform = "translate(0px, 0px) translateY(0px)";
+        });
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
+  // 11. CURSOR GLOW ORB
+  // ─────────────────────────────────────────
+  const CursorGlow = (() => {
+    let orb;
+
+    function init() {
+      if ("ontouchstart" in window) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      orb = document.createElement("div");
+      orb.classList.add("cursor-glow");
+      document.body.appendChild(orb);
+
+      let currentX = 0,
+        currentY = 0,
+        targetX = 0,
+        targetY = 0;
+
+      function animate() {
+        const ease = 0.12;
+        currentX += (targetX - currentX) * ease;
+        currentY += (targetY - currentY) * ease;
+        orb.style.left = currentX + "px";
+        orb.style.top = currentY + "px";
+        requestAnimationFrame(animate);
+      }
+
+      document.addEventListener("mousemove", (e) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+        if (!orb.classList.contains("cursor-glow--visible")) {
+          orb.classList.add("cursor-glow--visible");
+        }
+      });
+
+      document.addEventListener("mouseout", (e) => {
+        if (e.relatedTarget === null) {
+          orb.classList.remove("cursor-glow--visible");
+        }
+      });
+
+      const interactives = document.querySelectorAll(
+        ".glass-panel, .btn, .nav__link, .skill-tag, .contact__social-link",
+      );
+      interactives.forEach((el) => {
+        el.addEventListener("mouseenter", () => {
+          orb.classList.add("cursor-glow--hover");
+        });
+        el.addEventListener("mouseleave", () => {
+          orb.classList.remove("cursor-glow--hover");
+        });
+      });
+
+      animate();
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
+  // 12. ANTI-GRAVITY FLOATING ELEMENTS
+  // ─────────────────────────────────────────
+  const AntiGravityFloat = (() => {
+    function init() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const floatTargets = [
+        { selector: ".hero__scroll-indicator", delay: "" },
+        {
+          selector: ".about__photo-frame",
+          delay: "antigravity-float--delay-1",
+        },
+        {
+          selector: ".section__header .section__number",
+          delay: "antigravity-float--delay-2",
+        },
+      ];
+
+      floatTargets.forEach(({ selector, delay }) => {
+        const el = document.querySelector(selector);
+        if (el) {
+          el.classList.add("antigravity-float");
+          if (delay) el.classList.add(delay);
+        }
+      });
+
+      document.querySelectorAll(".skill-tag").forEach((tag, i) => {
+        tag.style.animationDelay = `${-(i * 0.4)}s`;
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
   // INITIALIZE EVERYTHING ON DOM READY
   // ─────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", () => {
@@ -557,5 +911,9 @@
     ScrollProgress.init();
     ContactForm.init();
     SmoothScroll.init();
+    AntiGravityTilt.init();
+    MagneticButtons.init();
+    CursorGlow.init();
+    AntiGravityFloat.init();
   });
 })();
