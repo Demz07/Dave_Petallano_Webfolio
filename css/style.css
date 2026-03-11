@@ -3828,3 +3828,750 @@ button:focus:not(:focus-visible) {
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════
+   NAV GAMES BUTTON
+   ═══════════════════════════════════════════ */
+.nav__games-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav__games-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.nav__games-btn:hover::before {
+  opacity: 1;
+}
+
+.nav__games-btn:hover {
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.04);
+}
+
+.nav__games-btn:active {
+  transform: translateY(0);
+}
+
+.nav__games-icon {
+  font-size: 0.6rem;
+  transition: transform 0.3s ease;
+}
+
+.nav__games-btn:hover .nav__games-icon {
+  transform: scale(1.3);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* ═══════════════════════════════════════════
+   TERMINAL GAMES CONSOLE — Overlay
+   ═══════════════════════════════════════════ */
+.tgame {
+  position: fixed;
+  inset: 0;
+  z-index: 99995;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.4s var(--ease-out-expo),
+    visibility 0.4s var(--ease-out-expo);
+  padding: 20px;
+  overscroll-behavior: contain;
+}
+
+.tgame--active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+.tgame__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.tgame__container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.tgame--active .tgame__container {
+  transform: translateY(0) scale(1);
+}
+
+.tgame--entering .tgame__container {
+  animation: cvModalGlitchIn 0.5s steps(3) forwards;
+}
+
+/* ── Panel ── */
+.tgame__panel {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.7),
+    0 0 60px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.tgame__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  z-index: 100;
+}
+
+.tgame__body {
+  padding: 0 !important;
+  min-height: 420px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════
+   MENU SCREEN
+   ═══════════════════════════════════ */
+.tgame__screen--menu {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tgame__boot-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 8px;
+}
+
+.tgame__boot-line {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transform: translateY(3px);
+  line-height: 1.6;
+}
+
+.tgame__boot-line--visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.1s ease,
+    transform 0.1s ease;
+}
+
+.tgame__boot-line--ok {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.tgame__boot-line--ready {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+/* ── ASCII Title ── */
+.tgame__ascii-title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+/* ── Menu Items ── */
+.tgame__menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tgame__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.tgame__menu-item:hover,
+.tgame__menu-item:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.tgame__menu-item:active {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(0.98);
+}
+
+.tgame__menu-num {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+  min-width: 28px;
+}
+
+.tgame__menu-name {
+  color: inherit;
+  font-weight: 600;
+}
+
+.tgame__menu-desc {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.7rem;
+}
+
+.tgame__menu-footer {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.tgame__menu-hint {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════
+   GAME SCREEN
+   ═══════════════════════════════════ */
+.tgame__screen--game {
+  padding: 12px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+.tgame__game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.tgame__game-title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.tgame__game-score {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+/* ── Game Area ── */
+.tgame__game-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  max-height: 350px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Canvas ── */
+.tgame__canvas {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── Memory Grid ── */
+.tgame__memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  align-self: center;
+}
+
+.tgame__memory-card {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 4vw, 1.3rem);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.tgame__memory-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.tgame__memory-card--flipped {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.tgame__memory-card--matched {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: default;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.tgame__memory-card--wrong {
+  animation: memoryWrong 0.4s ease;
+  border-color: rgba(255, 80, 80, 0.4);
+}
+
+@keyframes memoryWrong {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* ── Game Info ── */
+.tgame__game-info {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  padding: 6px 0;
+  flex-shrink: 0;
+}
+
+/* ── Game Over Overlay ── */
+.tgame__gameover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 10;
+}
+
+.tgame__gameover-text {
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.15em;
+}
+
+.tgame__gameover-score {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.tgame__gameover-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+  letter-spacing: 0.08em;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.tgame__gameover-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.tgame__gameover-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ═══════════════════════════════════
+   D-PAD — Mobile Controls
+   ═══════════════════════════════════ */
+.tgame__dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin-top: 12px;
+  flex-shrink: 0;
+}
+
+.tgame__dpad-mid {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tgame__dpad-center {
+  width: 44px;
+  height: 44px;
+}
+
+.tgame__dpad-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.08s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.tgame__dpad-btn:active,
+.tgame__dpad-btn--pressed {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: scale(0.88);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Back / Footer ── */
+.tgame__game-footer {
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.tgame__back-btn {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.tgame__back-btn:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Close Button ── */
+.tgame__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 16px auto 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.15em;
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tgame__close span {
+  color: var(--color-text-muted);
+}
+
+.tgame__close:hover {
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ═══════════════════════════════════════════
+   TERMINAL GAMES — Responsive
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .nav__games-label {
+    display: none;
+  }
+
+  .nav__games-btn {
+    padding: 8px 10px;
+  }
+
+  .tgame__container {
+    max-width: 98%;
+  }
+
+  .tgame__body {
+    min-height: 360px;
+    max-height: 78vh;
+  }
+
+  .tgame__ascii-title {
+    font-size: 0.52rem;
+  }
+
+  .tgame__menu-item {
+    font-size: 0.72rem;
+    padding: 8px 12px;
+  }
+
+  .tgame__menu-desc {
+    display: none;
+  }
+
+  .tgame__game-area {
+    min-height: 160px;
+    max-height: 260px;
+  }
+
+  .tgame__dpad-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .tgame__dpad-center {
+    width: 48px;
+    height: 48px;
+  }
+
+  .tgame__memory-grid {
+    max-width: 240px;
+    gap: 5px;
+  }
+
+  .tgame__gameover-btn {
+    padding: 12px 28px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tgame__body {
+    min-height: 320px;
+    max-height: 75vh;
+  }
+
+  .tgame__game-area {
+    min-height: 140px;
+    max-height: 220px;
+  }
+
+  .tgame__dpad-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+  }
+
+  .tgame__dpad-center {
+    width: 50px;
+    height: 50px;
+  }
+
+  .tgame__memory-grid {
+    max-width: 220px;
+    gap: 4px;
+  }
+
+  .tgame__game-header {
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+  }
+
+  .tgame__game-title {
+    font-size: 0.7rem;
+  }
+
+  .tgame__game-score {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .tgame__ascii-title {
+    font-size: 0.45rem;
+  }
+
+  .tgame__body {
+    min-height: 300px;
+  }
+
+  .tgame__game-area {
+    min-height: 120px;
+    max-height: 200px;
+  }
+
+  .tgame__memory-grid {
+    max-width: 200px;
+    gap: 3px;
+  }
+
+  .tgame__dpad-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .tgame__dpad-center {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ── Landscape phone orientation ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .tgame__body {
+    min-height: 250px;
+    max-height: 90vh;
+  }
+
+  .tgame__game-area {
+    min-height: 120px;
+    max-height: 180px;
+  }
+
+  .tgame__dpad {
+    margin-top: 6px;
+    gap: 2px;
+  }
+
+  .tgame__dpad-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+  }
+
+  .tgame__dpad-center {
+    width: 36px;
+    height: 36px;
+  }
+
+  .tgame__ascii-title {
+    display: none;
+  }
+
+  .tgame__screen--menu {
+    padding: 12px;
+  }
+
+  .tgame__menu-list {
+    gap: 2px;
+  }
+
+  .tgame__menu-item {
+    padding: 6px 12px;
+    font-size: 0.68rem;
+  }
+}

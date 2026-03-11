@@ -44,6 +44,17 @@
           <span class="nav__logo-bracket">}</span>
         </a>
 
+        <!-- ── Terminal Games Button ── -->
+<button
+  class="nav__games-btn"
+  id="navGamesBtn"
+  aria-label="Open Terminal Games"
+  title="Terminal Games"
+>
+  <span class="nav__games-icon">▶</span>
+  <span class="nav__games-label">PLAY</span>
+</button>
+
         <button
           class="nav__hamburger"
           id="navToggle"
@@ -772,6 +783,89 @@
     </div>
     <button class="cv-modal__close" id="cvModalClose" aria-label="Close modal">
       <span>[</span> ESC <span>]</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TERMINAL GAMES CONSOLE
+═══════════════════════════════════════════ -->
+<div class="tgame" id="tgame" aria-hidden="true">
+  <div class="tgame__backdrop" id="tgameBackdrop"></div>
+  <div class="tgame__container">
+    <div class="tgame__panel glass-panel">
+      <div class="glass-panel__header">
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-title" id="tgameHeaderTitle">arcade.exe</span>
+      </div>
+      <div class="glass-panel__body tgame__body">
+
+        <!-- ── MENU SCREEN ── -->
+        <div class="tgame__screen tgame__screen--menu" id="tgameMenu">
+          <div class="tgame__boot-lines" id="tgameBootLines"></div>
+          <div class="tgame__menu-content" id="tgameMenuContent" style="display:none;">
+            <pre class="tgame__ascii-title">
+ ╔══════════════════════════════╗
+ ║    TERMINAL ARCADE v1.0     ║
+ ║    ━━━━━━━━━━━━━━━━━━━━     ║
+ ║    SELECT YOUR PROGRAM      ║
+ ╚══════════════════════════════╝</pre>
+            <div class="tgame__menu-list">
+              <button class="tgame__menu-item" data-game="snake">
+                <span class="tgame__menu-num">[1]</span>
+                <span class="tgame__menu-name">SNAKE.exe</span>
+                <span class="tgame__menu-desc">— Classic serpent protocol</span>
+              </button>
+              <button class="tgame__menu-item" data-game="pong">
+                <span class="tgame__menu-num">[2]</span>
+                <span class="tgame__menu-name">PONG.exe</span>
+                <span class="tgame__menu-desc">— Paddle defense system</span>
+              </button>
+              <button class="tgame__menu-item" data-game="memory">
+                <span class="tgame__menu-num">[3]</span>
+                <span class="tgame__menu-name">MEMORY.exe</span>
+                <span class="tgame__menu-desc">— Pattern recognition test</span>
+              </button>
+            </div>
+            <div class="tgame__menu-footer">
+              <span class="tgame__menu-hint">// Click to launch or press [1] [2] [3]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── GAME SCREEN ── -->
+        <div class="tgame__screen tgame__screen--game" id="tgameGameScreen" style="display:none;">
+          <div class="tgame__game-header">
+            <span class="tgame__game-title" id="tgameGameTitle">SNAKE.exe</span>
+            <span class="tgame__game-score">SCORE: <span id="tgameScore">0</span></span>
+          </div>
+          <div class="tgame__game-area" id="tgameGameArea"></div>
+          <div class="tgame__game-controls" id="tgameControls">
+            <div class="tgame__game-info" id="tgameInfo"></div>
+          </div>
+
+          <!-- ── Mobile D-Pad ── -->
+          <div class="tgame__dpad" id="tgameDpad" style="display:none;">
+            <button class="tgame__dpad-btn tgame__dpad-btn--up" data-dir="up" aria-label="Up">▲</button>
+            <div class="tgame__dpad-mid">
+              <button class="tgame__dpad-btn tgame__dpad-btn--left" data-dir="left" aria-label="Left">◄</button>
+              <div class="tgame__dpad-center"></div>
+              <button class="tgame__dpad-btn tgame__dpad-btn--right" data-dir="right" aria-label="Right">►</button>
+            </div>
+            <button class="tgame__dpad-btn tgame__dpad-btn--down" data-dir="down" aria-label="Down">▼</button>
+          </div>
+
+          <div class="tgame__game-footer">
+            <button class="tgame__back-btn" id="tgameBackBtn">[ESC] Back to Menu</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <button class="tgame__close" id="tgameClose" aria-label="Close games">
+      <span>[</span> QUIT <span>]</span>
     </button>
   </div>
 </div>

@@ -1747,6 +1747,857 @@
   })();
 
   // ─────────────────────────────────────────
+  // 15. TERMINAL ARCADE — Mini Games Console
+  // ─────────────────────────────────────────
+  const TerminalArcade = (() => {
+    const modal = document.getElementById("tgame");
+    const backdrop = document.getElementById("tgameBackdrop");
+    const closeBtn = document.getElementById("tgameClose");
+    const openBtn = document.getElementById("navGamesBtn");
+    const headerTitle = document.getElementById("tgameHeaderTitle");
+
+    const menuScreen = document.getElementById("tgameMenu");
+    const gameScreen = document.getElementById("tgameGameScreen");
+    const bootLinesEl = document.getElementById("tgameBootLines");
+    const menuContent = document.getElementById("tgameMenuContent");
+    const gameArea = document.getElementById("tgameGameArea");
+    const gameTitleEl = document.getElementById("tgameGameTitle");
+    const scoreEl = document.getElementById("tgameScore");
+    const infoEl = document.getElementById("tgameInfo");
+    const backBtn = document.getElementById("tgameBackBtn");
+    const dpad = document.getElementById("tgameDpad");
+
+    if (!modal || !openBtn) return { init: () => {} };
+
+    let currentGame = null;
+    let gameLoopId = null;
+    let gameIntervalId = null;
+    let bootDone = false;
+    let timeouts = [];
+    let activeKeyHandlers = [];
+    let activeTouchHandlers = [];
+
+    const monoFont = '"JetBrains Mono","Fira Code","Consolas",monospace';
+
+    function sleep(ms) {
+      return new Promise((resolve) => {
+        const id = setTimeout(resolve, ms);
+        timeouts.push(id);
+      });
+    }
+
+    function clearAllTimeouts() {
+      timeouts.forEach((id) => clearTimeout(id));
+      timeouts = [];
+    }
+
+    function removeAllHandlers() {
+      activeKeyHandlers.forEach((h) =>
+        document.removeEventListener(h.type, h.fn),
+      );
+      activeKeyHandlers = [];
+      activeTouchHandlers.forEach((h) =>
+        h.el.removeEventListener(h.type, h.fn),
+      );
+      activeTouchHandlers = [];
+    }
+
+    function addKeyHandler(type, fn) {
+      document.addEventListener(type, fn);
+      activeKeyHandlers.push({ type, fn });
+    }
+
+    function addTouchHandler(el, type, fn) {
+      el.addEventListener(type, fn, { passive: false });
+      activeTouchHandlers.push({ el, type, fn });
+    }
+
+    // ── Detect mobile ──
+    function isMobile() {
+      return "ontouchstart" in window || window.innerWidth <= 768;
+    }
+
+    // ── Get proper canvas size ──
+    function getCanvasSize() {
+      const areaRect = gameArea.getBoundingClientRect();
+      // Reserve space for header, controls, dpad, footer
+      const dpadHeight = isMobile() ? 130 : 0;
+      const maxW = Math.floor(areaRect.width - 8);
+      const maxH = Math.floor(areaRect.height - 8);
+      const size = Math.min(maxW, maxH, 400);
+      return size;
+    }
+
+    function getRectSize() {
+      const areaRect = gameArea.getBoundingClientRect();
+      const w = Math.min(Math.floor(areaRect.width - 8), 400);
+      const h = Math.min(Math.floor(areaRect.height - 8), 300);
+      return { w, h };
+    }
+
+    // ─── Boot Sequence ───
+    const bootScript = [
+      { text: "> Initializing arcade subsystem...", cls: "" },
+      { text: "[OK] Loading game engines", cls: "--ok" },
+      { text: "[OK] Allocating pixel buffer", cls: "--ok" },
+      { text: "[OK] Input handlers ready", cls: "--ok" },
+      { text: "> All systems nominal.", cls: "--ready" },
+    ];
+
+    async function runBoot() {
+      bootLinesEl.innerHTML = "";
+      menuContent.style.display = "none";
+
+      for (let i = 0; i < bootScript.length; i++) {
+        const el = document.createElement("div");
+        el.classList.add("tgame__boot-line");
+        if (bootScript[i].cls)
+          el.classList.add("tgame__boot-line" + bootScript[i].cls);
+        el.textContent = bootScript[i].text;
+        bootLinesEl.appendChild(el);
+        await sleep(120 + Math.random() * 80);
+        el.classList.add("tgame__boot-line--visible");
+      }
+
+      await sleep(300);
+      menuContent.style.display = "flex";
+      menuContent.style.flexDirection = "column";
+      menuContent.style.flex = "1";
+      bootDone = true;
+    }
+
+    // ─── Modal Controls ───
+    function openModal() {
+      document.body.style.overflow = "hidden";
+      modal.classList.add("tgame--active", "tgame--entering");
+      modal.setAttribute("aria-hidden", "false");
+      setTimeout(() => modal.classList.remove("tgame--entering"), 500);
+      showMenu();
+      if (!bootDone) runBoot();
+    }
+
+    function closeModal() {
+      clearAllTimeouts();
+      stopGame();
+      modal.classList.remove("tgame--active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function showMenu() {
+      stopGame();
+      menuScreen.style.display = "flex";
+      gameScreen.style.display = "none";
+      headerTitle.textContent = "arcade.exe";
+      dpad.style.display = "none";
+    }
+
+    function showGame(gameName) {
+      stopGame();
+      menuScreen.style.display = "none";
+      gameScreen.style.display = "flex";
+      dpad.style.display = "none";
+      gameArea.innerHTML = "";
+      scoreEl.textContent = "0";
+      infoEl.textContent = "";
+
+      // Small delay to let layout calculate
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (gameName === "snake") launchSnake();
+          else if (gameName === "pong") launchPong();
+          else if (gameName === "memory") launchMemory();
+        });
+      });
+    }
+
+    function stopGame() {
+      if (gameLoopId) {
+        cancelAnimationFrame(gameLoopId);
+        gameLoopId = null;
+      }
+      if (gameIntervalId) {
+        clearInterval(gameIntervalId);
+        gameIntervalId = null;
+      }
+      removeAllHandlers();
+      currentGame = null;
+    }
+
+    // ─── Game Over Overlay ───
+    function showGameOver(finalScore, retryFn, customTitle) {
+      const overlay = document.createElement("div");
+      overlay.classList.add("tgame__gameover");
+
+      overlay.innerHTML = `
+        <div class="tgame__gameover-text">${customTitle || "GAME OVER"}</div>
+        <div class="tgame__gameover-score">Final Score: ${finalScore}</div>
+        <button class="tgame__gameover-btn" data-action="retry">[ RETRY ]</button>
+        <button class="tgame__gameover-btn" data-action="menu">[ MENU ]</button>
+      `;
+
+      overlay
+        .querySelector('[data-action="retry"]')
+        .addEventListener("click", () => {
+          overlay.remove();
+          retryFn();
+        });
+      overlay
+        .querySelector('[data-action="menu"]')
+        .addEventListener("click", () => {
+          overlay.remove();
+          showMenu();
+        });
+
+      gameArea.appendChild(overlay);
+    }
+
+    // ═══════════════════════════════════
+    // GAME 1: SNAKE
+    // ═══════════════════════════════════
+    function launchSnake() {
+      currentGame = "snake";
+      gameTitleEl.textContent = "SNAKE.exe";
+      headerTitle.textContent = "snake.exe";
+      infoEl.textContent = isMobile()
+        ? "// Use D-pad to move"
+        : "// Arrow keys or WASD";
+
+      // Canvas setup
+      const canvas = document.createElement("canvas");
+      canvas.classList.add("tgame__canvas");
+      gameArea.appendChild(canvas);
+
+      const cellSize = isMobile() ? 14 : 16;
+      const canvasPixels = getCanvasSize();
+      const cols = Math.floor(canvasPixels / cellSize);
+      const rows = Math.floor(canvasPixels / cellSize);
+      canvas.width = cols * cellSize;
+      canvas.height = rows * cellSize;
+      canvas.style.width = canvas.width + "px";
+      canvas.style.height = canvas.height + "px";
+
+      const ctx = canvas.getContext("2d");
+
+      // Show d-pad on mobile
+      if (isMobile()) dpad.style.display = "flex";
+
+      // State
+      let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+      let dir = { x: 1, y: 0 };
+      let nextDir = { x: 1, y: 0 };
+      let food = null;
+      let score = 0;
+      let alive = true;
+      let baseSpeed = isMobile() ? 160 : 140;
+      let speed = baseSpeed;
+      let lastTick = 0;
+      let dirChanged = false;
+
+      function spawnFood() {
+        let pos;
+        let attempts = 0;
+        do {
+          pos = {
+            x: Math.floor(Math.random() * cols),
+            y: Math.floor(Math.random() * rows),
+          };
+          attempts++;
+        } while (
+          snake.some((s) => s.x === pos.x && s.y === pos.y) &&
+          attempts < 200
+        );
+        return pos;
+      }
+
+      food = spawnFood();
+
+      function setDir(d) {
+        if (dirChanged) return; // One direction change per tick
+        const map = {
+          up: { x: 0, y: -1 },
+          down: { x: 0, y: 1 },
+          left: { x: -1, y: 0 },
+          right: { x: 1, y: 0 },
+        };
+        const nd = map[d];
+        if (!nd) return;
+        // Prevent 180 reversal
+        if (snake.length > 1 && nd.x === -dir.x && nd.y === -dir.y) return;
+        nextDir = { ...nd };
+        dirChanged = true;
+      }
+
+      // Keyboard
+      const keyDown = (e) => {
+        if (currentGame !== "snake" || !alive) return;
+        const keyMap = {
+          ArrowUp: "up",
+          ArrowDown: "down",
+          ArrowLeft: "left",
+          ArrowRight: "right",
+          w: "up",
+          s: "down",
+          a: "left",
+          d: "right",
+          W: "up",
+          S: "down",
+          A: "left",
+          D: "right",
+        };
+        if (keyMap[e.key]) {
+          e.preventDefault();
+          setDir(keyMap[e.key]);
+        }
+      };
+      addKeyHandler("keydown", keyDown);
+
+      // D-pad buttons
+      document.querySelectorAll(".tgame__dpad-btn").forEach((btn) => {
+        const handler = (e) => {
+          e.preventDefault();
+          if (currentGame === "snake" && alive) setDir(btn.dataset.dir);
+        };
+        addTouchHandler(btn, "click", handler);
+      });
+
+      // Swipe support
+      let touchStartX = 0,
+        touchStartY = 0;
+      const swipeStart = (e) => {
+        const t = e.touches[0];
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+      };
+      const swipeEnd = (e) => {
+        if (currentGame !== "snake" || !alive) return;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touchStartX;
+        const dy = t.clientY - touchStartY;
+        const minSwipe = 30;
+        if (Math.abs(dx) < minSwipe && Math.abs(dy) < minSwipe) return;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          setDir(dx > 0 ? "right" : "left");
+        } else {
+          setDir(dy > 0 ? "down" : "up");
+        }
+      };
+      addTouchHandler(canvas, "touchstart", swipeStart);
+      addTouchHandler(canvas, "touchend", swipeEnd);
+
+      function tick() {
+        dir = { ...nextDir };
+        dirChanged = false;
+
+        const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+        // Wall collision
+        if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
+          alive = false;
+          return;
+        }
+        // Self collision
+        if (snake.some((s) => s.x === head.x && s.y === head.y)) {
+          alive = false;
+          return;
+        }
+
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+          score += 10;
+          scoreEl.textContent = score;
+          food = spawnFood();
+          // Speed up slightly
+          if (speed > 70) speed -= 2;
+        } else {
+          snake.pop();
+        }
+      }
+
+      function draw() {
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // Background
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, w, h);
+
+        // Subtle grid
+        ctx.fillStyle = "rgba(255,255,255,0.025)";
+        for (let x = 0; x < cols; x++) {
+          for (let y = 0; y < rows; y++) {
+            ctx.fillRect(
+              x * cellSize + cellSize - 1,
+              y * cellSize + cellSize - 1,
+              1,
+              1,
+            );
+          }
+        }
+
+        // Border
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+
+        // Snake
+        snake.forEach((seg, i) => {
+          const brightness =
+            i === 0 ? 1 : Math.max(0.25, 1 - (i / snake.length) * 0.75);
+          ctx.fillStyle = `rgba(255,255,255,${brightness})`;
+          const padding = i === 0 ? 0 : 1;
+          ctx.fillRect(
+            seg.x * cellSize + padding,
+            seg.y * cellSize + padding,
+            cellSize - padding * 2,
+            cellSize - padding * 2,
+          );
+        });
+
+        // Food — pulsing diamond
+        const pulse = Math.sin(Date.now() * 0.005) * 0.2 + 0.8;
+        ctx.fillStyle = `rgba(255,255,255,${pulse})`;
+        ctx.font = `bold ${cellSize - 2}px ${monoFont}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          "◆",
+          food.x * cellSize + cellSize / 2,
+          food.y * cellSize + cellSize / 2,
+        );
+      }
+
+      function gameLoop(timestamp) {
+        if (currentGame !== "snake") return;
+
+        if (!alive) {
+          draw();
+          showGameOver(score, () => {
+            stopGame();
+            showGame("snake");
+          });
+          return;
+        }
+
+        if (!lastTick) lastTick = timestamp;
+
+        if (timestamp - lastTick >= speed) {
+          tick();
+          lastTick = timestamp;
+        }
+
+        draw();
+        gameLoopId = requestAnimationFrame(gameLoop);
+      }
+
+      gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    // ═══════════════════════════════════
+    // GAME 2: PONG
+    // ═══════════════════════════════════
+    function launchPong() {
+      currentGame = "pong";
+      gameTitleEl.textContent = "PONG.exe";
+      headerTitle.textContent = "pong.exe";
+      infoEl.textContent = isMobile()
+        ? "// Use D-pad or drag"
+        : "// Arrow Up/Down or W/S";
+
+      const canvas = document.createElement("canvas");
+      canvas.classList.add("tgame__canvas");
+      gameArea.appendChild(canvas);
+
+      const { w, h } = getRectSize();
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+
+      const ctx = canvas.getContext("2d");
+
+      if (isMobile()) dpad.style.display = "flex";
+
+      // Dimensions
+      const paddleW = 6;
+      const paddleH = Math.max(40, Math.floor(h * 0.18));
+      const ballSize = 6;
+      const paddleMargin = 14;
+      const paddleSpeed = 4;
+      const aiSpeedFactor = 0.055;
+
+      // State
+      let playerY = h / 2 - paddleH / 2;
+      let aiY = h / 2 - paddleH / 2;
+      let ballX = w / 2;
+      let ballY = h / 2;
+      let ballVX = 2.5 * (Math.random() > 0.5 ? 1 : -1);
+      let ballVY = (Math.random() - 0.5) * 3;
+      let playerScore = 0;
+      let aiScore = 0;
+      let playerMove = 0; // -1 up, 0 none, 1 down
+      let alive = true;
+      let touchDragY = null;
+
+      function resetBall(towardsPlayer) {
+        ballX = w / 2;
+        ballY = h / 2;
+        ballVX = 2.5 * (towardsPlayer ? -1 : 1);
+        ballVY = (Math.random() - 0.5) * 3;
+      }
+
+      // Keyboard
+      const keyDown = (e) => {
+        if (currentGame !== "pong") return;
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+          e.preventDefault();
+          playerMove = -1;
+        } else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
+          e.preventDefault();
+          playerMove = 1;
+        }
+      };
+      const keyUp = (e) => {
+        if (currentGame !== "pong") return;
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
+          if (playerMove === -1) playerMove = 0;
+        }
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
+          if (playerMove === 1) playerMove = 0;
+        }
+      };
+      addKeyHandler("keydown", keyDown);
+      addKeyHandler("keyup", keyUp);
+
+      // D-pad — hold support
+      document.querySelectorAll(".tgame__dpad-btn").forEach((btn) => {
+        const downHandler = (e) => {
+          e.preventDefault();
+          if (currentGame !== "pong") return;
+          if (btn.dataset.dir === "up") playerMove = -1;
+          if (btn.dataset.dir === "down") playerMove = 1;
+        };
+        const upHandler = (e) => {
+          e.preventDefault();
+          if (currentGame !== "pong") return;
+          playerMove = 0;
+        };
+        addTouchHandler(btn, "touchstart", downHandler);
+        addTouchHandler(btn, "touchend", upHandler);
+        addTouchHandler(btn, "touchcancel", upHandler);
+        addTouchHandler(btn, "mousedown", downHandler);
+        addTouchHandler(btn, "mouseup", upHandler);
+        addTouchHandler(btn, "mouseleave", upHandler);
+      });
+
+      // Touch drag on canvas to move paddle
+      const touchMoveHandler = (e) => {
+        if (currentGame !== "pong") return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches[0];
+        const y = t.clientY - rect.top;
+        const scaleY = canvas.height / rect.height;
+        playerY = y * scaleY - paddleH / 2;
+        playerY = Math.max(0, Math.min(h - paddleH, playerY));
+      };
+      addTouchHandler(canvas, "touchmove", touchMoveHandler);
+      addTouchHandler(canvas, "touchstart", (e) => {
+        e.preventDefault();
+      });
+
+      function update() {
+        // Player paddle movement (keyboard/dpad)
+        if (playerMove !== 0) {
+          playerY += playerMove * paddleSpeed;
+        }
+        playerY = Math.max(0, Math.min(h - paddleH, playerY));
+
+        // AI paddle
+        const aiCenter = aiY + paddleH / 2;
+        const aiTarget = ballVX > 0 ? ballY : h / 2; // Track ball when coming towards AI
+        aiY += (aiTarget - aiCenter) * aiSpeedFactor;
+        aiY = Math.max(0, Math.min(h - paddleH, aiY));
+
+        // Ball movement
+        ballX += ballVX;
+        ballY += ballVY;
+
+        // Top/bottom bounce
+        if (ballY <= 0) {
+          ballY = 0;
+          ballVY = Math.abs(ballVY);
+        }
+        if (ballY >= h - ballSize) {
+          ballY = h - ballSize;
+          ballVY = -Math.abs(ballVY);
+        }
+
+        // Player paddle collision (left side)
+        const playerPaddleRight = paddleMargin + paddleW;
+        if (
+          ballX <= playerPaddleRight &&
+          ballX + ballSize >= paddleMargin &&
+          ballY + ballSize >= playerY &&
+          ballY <= playerY + paddleH &&
+          ballVX < 0
+        ) {
+          ballX = playerPaddleRight;
+          ballVX = Math.abs(ballVX) * 1.05;
+          const hitPos =
+            (ballY + ballSize / 2 - (playerY + paddleH / 2)) / (paddleH / 2);
+          ballVY = hitPos * 4;
+          playerScore++;
+          scoreEl.textContent = playerScore;
+        }
+
+        // AI paddle collision (right side)
+        const aiPaddleLeft = w - paddleMargin - paddleW;
+        if (
+          ballX + ballSize >= aiPaddleLeft &&
+          ballX <= aiPaddleLeft + paddleW &&
+          ballY + ballSize >= aiY &&
+          ballY <= aiY + paddleH &&
+          ballVX > 0
+        ) {
+          ballX = aiPaddleLeft - ballSize;
+          ballVX = -Math.abs(ballVX) * 1.03;
+          const hitPos =
+            (ballY + ballSize / 2 - (aiY + paddleH / 2)) / (paddleH / 2);
+          ballVY = hitPos * 3.5;
+        }
+
+        // Clamp ball speed
+        const maxSpeed = 8;
+        ballVX = Math.max(-maxSpeed, Math.min(maxSpeed, ballVX));
+        ballVY = Math.max(-maxSpeed, Math.min(maxSpeed, ballVY));
+
+        // Scoring (ball out of bounds)
+        if (ballX < -20) {
+          aiScore++;
+          infoEl.textContent = `// You: ${playerScore} | CPU: ${aiScore}`;
+          if (aiScore >= 5) {
+            alive = false;
+            return;
+          }
+          resetBall(true);
+        }
+        if (ballX > w + 20) {
+          playerScore += 3;
+          scoreEl.textContent = playerScore;
+          infoEl.textContent = `// You: ${playerScore} | CPU: ${aiScore}`;
+          resetBall(false);
+        }
+      }
+
+      function draw() {
+        // Clear
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, w, h);
+
+        // Border
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+
+        // Center dashed line
+        ctx.setLineDash([4, 8]);
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.beginPath();
+        ctx.moveTo(Math.floor(w / 2) + 0.5, 0);
+        ctx.lineTo(Math.floor(w / 2) + 0.5, h);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Score text
+        ctx.font = `16px ${monoFont}`;
+        ctx.fillStyle = "rgba(255,255,255,0.15)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText(String(playerScore), w / 2 - 30, 10);
+        ctx.fillText(String(aiScore), w / 2 + 30, 10);
+
+        // Player paddle
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.fillRect(paddleMargin, Math.round(playerY), paddleW, paddleH);
+
+        // AI paddle
+        ctx.fillStyle = "rgba(255,255,255,0.45)";
+        ctx.fillRect(
+          w - paddleMargin - paddleW,
+          Math.round(aiY),
+          paddleW,
+          paddleH,
+        );
+
+        // Ball with subtle trail
+        ctx.fillStyle = "rgba(255,255,255,0.15)";
+        ctx.fillRect(
+          Math.round(ballX - ballVX * 0.5),
+          Math.round(ballY - ballVY * 0.5),
+          ballSize,
+          ballSize,
+        );
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(Math.round(ballX), Math.round(ballY), ballSize, ballSize);
+      }
+
+      function loop() {
+        if (currentGame !== "pong") return;
+
+        if (!alive) {
+          draw();
+          showGameOver(playerScore, () => {
+            stopGame();
+            showGame("pong");
+          });
+          return;
+        }
+
+        update();
+        draw();
+        gameLoopId = requestAnimationFrame(loop);
+      }
+
+      gameLoopId = requestAnimationFrame(loop);
+    }
+
+    // ═══════════════════════════════════
+    // GAME 3: MEMORY
+    // ═══════════════════════════════════
+    function launchMemory() {
+      currentGame = "memory";
+      gameTitleEl.textContent = "MEMORY.exe";
+      headerTitle.textContent = "memory.exe";
+      infoEl.textContent = "// Find all matching pairs";
+      dpad.style.display = "none";
+
+      const symbols = ["★", "◆", "▲", "●", "■", "✕", "♦", "◈"];
+      let cards = [...symbols, ...symbols];
+      cards = cards.sort(() => Math.random() - 0.5);
+
+      let flipped = [];
+      let matched = [];
+      let score = 0;
+      let moves = 0;
+      let locked = false;
+
+      const grid = document.createElement("div");
+      grid.classList.add("tgame__memory-grid");
+      gameArea.appendChild(grid);
+
+      cards.forEach((symbol, i) => {
+        const card = document.createElement("button");
+        card.classList.add("tgame__memory-card");
+        card.textContent = "?";
+        card.dataset.index = i;
+        card.dataset.symbol = symbol;
+
+        card.addEventListener("click", () => {
+          if (currentGame !== "memory") return;
+          if (locked || matched.includes(i) || flipped.includes(i)) return;
+
+          card.textContent = symbol;
+          card.classList.add("tgame__memory-card--flipped");
+          flipped.push(i);
+
+          if (flipped.length === 2) {
+            locked = true;
+            moves++;
+            const [a, b] = flipped;
+            const cardA = grid.children[a];
+            const cardB = grid.children[b];
+
+            if (cards[a] === cards[b]) {
+              matched.push(a, b);
+              score += 20;
+              scoreEl.textContent = score;
+              cardA.classList.add("tgame__memory-card--matched");
+              cardB.classList.add("tgame__memory-card--matched");
+              flipped = [];
+              locked = false;
+
+              if (matched.length === cards.length) {
+                setTimeout(() => {
+                  showGameOver(
+                    score,
+                    () => {
+                      stopGame();
+                      showGame("memory");
+                    },
+                    "MEMORY CLEARED",
+                  );
+                }, 500);
+              }
+            } else {
+              cardA.classList.add("tgame__memory-card--wrong");
+              cardB.classList.add("tgame__memory-card--wrong");
+
+              setTimeout(() => {
+                cardA.textContent = "?";
+                cardB.textContent = "?";
+                cardA.classList.remove(
+                  "tgame__memory-card--flipped",
+                  "tgame__memory-card--wrong",
+                );
+                cardB.classList.remove(
+                  "tgame__memory-card--flipped",
+                  "tgame__memory-card--wrong",
+                );
+                flipped = [];
+                locked = false;
+              }, 700);
+            }
+
+            infoEl.textContent = `// Moves: ${moves} | Pairs: ${matched.length / 2}/${symbols.length}`;
+          }
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ─── Init ───
+    function init() {
+      openBtn.addEventListener("click", openModal);
+      if (closeBtn) closeBtn.addEventListener("click", closeModal);
+      if (backdrop) backdrop.addEventListener("click", closeModal);
+      if (backBtn) backBtn.addEventListener("click", showMenu);
+
+      // Menu item clicks
+      document.querySelectorAll(".tgame__menu-item").forEach((item) => {
+        item.addEventListener("click", () => showGame(item.dataset.game));
+      });
+
+      // Global keyboard
+      document.addEventListener("keydown", (e) => {
+        if (!modal.classList.contains("tgame--active")) return;
+
+        if (e.key === "Escape") {
+          e.preventDefault();
+          if (currentGame) showMenu();
+          else closeModal();
+          return;
+        }
+
+        // Number keys for menu
+        if (
+          !currentGame &&
+          menuContent &&
+          menuContent.style.display !== "none"
+        ) {
+          if (e.key === "1") showGame("snake");
+          if (e.key === "2") showGame("pong");
+          if (e.key === "3") showGame("memory");
+        }
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
   // INITIALIZE EVERYTHING ON DOM READY
   // ─────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", () => {
@@ -1764,5 +2615,6 @@
     AntiGravityFloat.init();
     LogoModal.init();
     CvModal.init();
+    TerminalArcade.init();
   });
 })();
