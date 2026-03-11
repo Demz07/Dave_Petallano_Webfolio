@@ -1444,6 +1444,309 @@
   })();
 
   // ─────────────────────────────────────────
+  // 14. CV MODAL — "Resume In Progress" Terminal
+  // ─────────────────────────────────────────
+  const CvModal = (() => {
+    const modal = document.getElementById("cvModal");
+    const backdrop = document.getElementById("cvModalBackdrop");
+    const closeBtn = document.getElementById("cvModalClose");
+    const linesContainer = document.getElementById("cvModalLines");
+    const cursorLine = document.querySelector(".cv-modal__cursor-line");
+    const cvBtn = document.getElementById("cvDownloadBtn");
+
+    if (!modal || !cvBtn) return { init: () => {} };
+
+    let isAnimating = false;
+    let currentTimeouts = [];
+
+    function sleep(ms) {
+      return new Promise((resolve) => {
+        const id = setTimeout(resolve, ms);
+        currentTimeouts.push(id);
+      });
+    }
+
+    function clearAllTimeouts() {
+      currentTimeouts.forEach((id) => clearTimeout(id));
+      currentTimeouts = [];
+    }
+
+    // The terminal script
+    const terminalScript = [
+      { type: "prompt", text: "❯ ./download_resume.sh", delay: 100 },
+      { type: "blank", delay: 150 },
+      { type: "system", text: "Initializing secure download...", delay: 200 },
+      { type: "ok", text: "[OK] Authentication verified", delay: 120 },
+      { type: "ok", text: "[OK] Clearance level: PUBLIC", delay: 100 },
+      {
+        type: "system",
+        text: "Locating file: resume_petallano.pdf",
+        delay: 250,
+      },
+      { type: "blank", delay: 100 },
+      { type: "system", text: "Scanning classified archives...", delay: 300 },
+      { type: "ok", text: "[OK] /vault/credentials/verified", delay: 100 },
+      { type: "ok", text: "[OK] /vault/experience/loading", delay: 120 },
+      {
+        type: "warn",
+        text: "[WARN] /vault/resume/status: INCOMPLETE",
+        delay: 200,
+      },
+      { type: "blank", delay: 150 },
+      { type: "progress", target: 67, delay: 0 },
+      { type: "blank", delay: 100 },
+      { type: "error", text: "✕ ERR_RESUME_NOT_READY", delay: 300 },
+      { type: "error", text: "  File is still being compiled...", delay: 150 },
+      { type: "blank", delay: 200 },
+      {
+        type: "header",
+        text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        delay: 80,
+      },
+      { type: "blank", delay: 100 },
+      {
+        type: "ascii",
+        text: "  ██╗███╗   ██╗    ██████╗ ██████╗  ██████╗  ██████╗",
+        delay: 60,
+      },
+      {
+        type: "ascii",
+        text: "  ██║████╗  ██║    ██╔══██╗██╔══██╗██╔═══██╗██╔════╝",
+        delay: 60,
+      },
+      {
+        type: "ascii",
+        text: "  ██║██╔██╗ ██║    ██████╔╝██████╔╝██║   ██║██║  ███╗",
+        delay: 60,
+      },
+      {
+        type: "ascii",
+        text: "  ██║██║╚██╗██║    ██╔═══╝ ██╔══██╗██║   ██║██║   ██║",
+        delay: 60,
+      },
+      {
+        type: "ascii",
+        text: "  ██║██║ ╚████║    ██║     ██║  ██║╚██████╔╝╚██████╔╝",
+        delay: 60,
+      },
+      {
+        type: "ascii",
+        text: "  ╚═╝╚═╝  ╚═══╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚═════╝",
+        delay: 60,
+      },
+      { type: "blank", delay: 150 },
+      {
+        type: "header",
+        text: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        delay: 80,
+      },
+      { type: "blank", delay: 200 },
+      {
+        type: "message",
+        text: "⚠ Resume is currently under construction.",
+        delay: 200,
+      },
+      {
+        type: "sub",
+        text: "  The developer is still leveling up...",
+        delay: 150,
+      },
+      { type: "blank", delay: 100 },
+      {
+        type: "info",
+        text: "  STATUS: Actively building experience",
+        delay: 120,
+      },
+      { type: "info", text: "  ETA:    When it's ready™", delay: 120 },
+      { type: "blank", delay: 100 },
+      {
+        type: "hint",
+        text: "  // Check back later or reach out via the contact form.",
+        delay: 200,
+      },
+      { type: "blank", delay: 100 },
+      {
+        type: "system",
+        text: "Process exited with code 418 (I'm a teapot)",
+        delay: 300,
+      },
+    ];
+
+    async function createLine(entry) {
+      const line = document.createElement("div");
+      line.classList.add("cv-modal__line");
+
+      if (entry.type === "blank") {
+        line.classList.add("cv-modal__line--blank");
+        linesContainer.appendChild(line);
+        line.classList.add("cv-modal__line--visible");
+        await sleep(entry.delay || 80);
+        return;
+      }
+
+      if (entry.type === "prompt") {
+        line.classList.add("cv-modal__line--prompt");
+        line.innerHTML = `<span class="cv-prompt">❯</span> ${entry.text.replace("❯ ", "")}`;
+        linesContainer.appendChild(line);
+        await sleep(entry.delay || 100);
+        line.classList.add("cv-modal__line--visible");
+        await sleep(80);
+        return;
+      }
+
+      if (entry.type === "progress") {
+        line.classList.add("cv-modal__line--progress-text");
+        line.textContent = `Building resume... 0%`;
+        line.classList.add("cv-modal__line--visible");
+        linesContainer.appendChild(line);
+
+        const progressWrapper = document.createElement("div");
+        progressWrapper.classList.add(
+          "cv-modal__line",
+          "cv-modal__line--visible",
+        );
+
+        const progressEl = document.createElement("div");
+        progressEl.classList.add("cv-modal__progress");
+
+        const progressBar = document.createElement("div");
+        progressBar.classList.add(
+          "cv-modal__progress-bar",
+          "cv-modal__progress-bar--warn",
+        );
+        progressEl.appendChild(progressBar);
+        progressWrapper.appendChild(progressEl);
+        linesContainer.appendChild(progressWrapper);
+
+        // Animate progress
+        const steps = [12, 25, 38, 45, 52, 58, 62, 65, 67];
+        for (let i = 0; i < steps.length; i++) {
+          progressBar.style.width = steps[i] + "%";
+          line.textContent = `Building resume... ${steps[i]}%`;
+          await sleep(Math.random() * 150 + 80);
+        }
+
+        // Stuck effect
+        for (let i = 0; i < 3; i++) {
+          line.textContent = `Building resume... 67%`;
+          await sleep(300);
+          line.textContent = `Building resume... 67%`;
+
+          // Add spinner dots
+          if (i === 2) {
+            const spinner = document.createElement("span");
+            spinner.classList.add("cv-modal__spinner");
+            spinner.innerHTML = `
+              <span class="cv-modal__spinner-dot"></span>
+              <span class="cv-modal__spinner-dot"></span>
+              <span class="cv-modal__spinner-dot"></span>
+            `;
+            line.appendChild(spinner);
+          }
+          await sleep(200);
+        }
+
+        await sleep(500);
+
+        // Remove spinner, show stuck
+        line.textContent = `Building resume... 67% — STALLED`;
+        line.style.color = "rgba(255, 80, 80, 0.6)";
+        progressBar.style.background =
+          "linear-gradient(90deg, rgba(255, 80, 80, 0.4), rgba(255, 80, 80, 0.7))";
+
+        await sleep(400);
+        return;
+      }
+
+      // Standard line types
+      const typeClass = `cv-modal__line--${entry.type}`;
+      line.classList.add(typeClass);
+      line.textContent = entry.text;
+      linesContainer.appendChild(line);
+
+      await sleep(entry.delay || 100);
+      line.classList.add("cv-modal__line--visible");
+
+      // Auto-scroll
+      linesContainer.scrollTop = linesContainer.scrollHeight;
+    }
+
+    async function runTerminal() {
+      isAnimating = true;
+
+      // Reset
+      linesContainer.innerHTML = "";
+      cursorLine.classList.remove("cv-modal__cursor-line--visible");
+      closeBtn.classList.remove("cv-modal__close--visible");
+
+      await sleep(400);
+
+      for (let i = 0; i < terminalScript.length; i++) {
+        if (!modal.classList.contains("cv-modal--active")) break;
+        await createLine(terminalScript[i]);
+        linesContainer.scrollTop = linesContainer.scrollHeight;
+      }
+
+      // Show cursor and close
+      await sleep(300);
+      cursorLine.classList.add("cv-modal__cursor-line--visible");
+      closeBtn.classList.add("cv-modal__close--visible");
+
+      isAnimating = false;
+    }
+
+    function openModal() {
+      document.body.style.overflow = "hidden";
+      modal.classList.add("cv-modal--active", "cv-modal--entering");
+      modal.setAttribute("aria-hidden", "false");
+
+      setTimeout(() => {
+        modal.classList.remove("cv-modal--entering");
+      }, 500);
+
+      runTerminal();
+    }
+
+    function closeModal() {
+      clearAllTimeouts();
+      isAnimating = false;
+
+      modal.classList.remove("cv-modal--active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+
+      setTimeout(() => {
+        linesContainer.innerHTML = "";
+        cursorLine.classList.remove("cv-modal__cursor-line--visible");
+        closeBtn.classList.remove("cv-modal__close--visible");
+      }, 400);
+    }
+
+    function init() {
+      // Hijack the CV button
+      cvBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openModal();
+      });
+
+      // Close handlers
+      if (closeBtn) closeBtn.addEventListener("click", closeModal);
+      if (backdrop) backdrop.addEventListener("click", closeModal);
+
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          modal.classList.contains("cv-modal--active")
+        ) {
+          closeModal();
+        }
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
   // INITIALIZE EVERYTHING ON DOM READY
   // ─────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", () => {
@@ -1460,5 +1763,6 @@
     CursorGlow.init();
     AntiGravityFloat.init();
     LogoModal.init();
+    CvModal.init();
   });
 })();

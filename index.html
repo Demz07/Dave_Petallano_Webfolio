@@ -377,15 +377,14 @@
               </div>
             </div>
 
-            <a
-              href="assets/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn btn--primary about__cv-btn"
-            >
-              <span class="btn__icon">⬡</span>
-              Download Declassified CV
-            </a>
+            <button
+  type="button"
+  class="btn btn--primary about__cv-btn"
+  id="cvDownloadBtn"
+>
+  <span class="btn__icon">⬡</span>
+  Download Declassified CV
+</button>
           </div>
         </div>
       </div>
@@ -745,6 +744,33 @@
       </div>
     </div>
     <button class="logo-modal__close" id="logoModalClose" aria-label="Close modal">
+      <span>[</span> ESC <span>]</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CV MODAL — "In Progress" Terminal
+═══════════════════════════════════════════ -->
+<div class="cv-modal" id="cvModal" aria-hidden="true">
+  <div class="cv-modal__backdrop" id="cvModalBackdrop"></div>
+  <div class="cv-modal__container">
+    <div class="cv-modal__panel glass-panel">
+      <div class="glass-panel__header">
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-title">resume_builder.sh</span>
+      </div>
+      <div class="glass-panel__body cv-modal__body">
+        <div class="cv-modal__lines" id="cvModalLines"></div>
+        <div class="cv-modal__cursor-line">
+          <span class="cv-modal__prompt-symbol">❯</span>
+          <span class="cv-modal__blinking-cursor">█</span>
+        </div>
+      </div>
+    </div>
+    <button class="cv-modal__close" id="cvModalClose" aria-label="Close modal">
       <span>[</span> ESC <span>]</span>
     </button>
   </div>

@@ -3452,3 +3452,379 @@ button:focus:not(:focus-visible) {
     font-size: 0.7rem;
   }
 }
+
+/* ═══════════════════════════════════════════
+   CV MODAL — "In Progress" Terminal Popup
+   ═══════════════════════════════════════════ */
+
+/* ── Modal Overlay ── */
+.cv-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.4s var(--ease-out-expo),
+    visibility 0.4s var(--ease-out-expo);
+  padding: 20px;
+}
+
+.cv-modal--active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+/* ── Backdrop ── */
+.cv-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Container ── */
+.cv-modal__container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 580px;
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.cv-modal--active .cv-modal__container {
+  transform: translateY(0) scale(1);
+}
+
+/* ── Glitch entrance ── */
+.cv-modal--entering .cv-modal__container {
+  animation: cvModalGlitchIn 0.5s steps(3) forwards;
+}
+
+@keyframes cvModalGlitchIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95) skewX(-5deg);
+    filter: brightness(2) hue-rotate(90deg);
+  }
+  20% {
+    opacity: 0.5;
+    transform: translateY(-10px) scale(1.02) skewX(3deg);
+    filter: brightness(1.5) hue-rotate(-45deg);
+  }
+  40% {
+    opacity: 0.8;
+    transform: translateY(5px) scale(0.98) skewX(-1deg);
+    filter: brightness(1.2);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.01) skewX(0.5deg);
+    filter: brightness(1.1);
+  }
+  80% {
+    transform: translateY(1px) scale(1) skewX(0deg);
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) skewX(0deg);
+    filter: none;
+  }
+}
+
+/* ── Panel ── */
+.cv-modal__panel {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── CRT Scanlines inside panel ── */
+.cv-modal__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  z-index: 100;
+}
+
+.cv-modal__body {
+  padding: 24px 24px 20px !important;
+  min-height: 200px;
+}
+
+/* ── Terminal Lines ── */
+.cv-modal__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cv-modal__line {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.8;
+  opacity: 0;
+  transform: translateY(4px);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cv-modal__line--visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+/* Line types */
+.cv-modal__line--prompt {
+  color: var(--color-text-secondary);
+}
+
+.cv-modal__line--prompt .cv-prompt {
+  color: rgba(80, 255, 80, 0.7);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(80, 255, 80, 0.3);
+}
+
+.cv-modal__line--system {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.cv-modal__line--ok {
+  color: rgba(80, 255, 80, 0.6);
+}
+
+.cv-modal__line--warn {
+  color: rgba(255, 200, 50, 0.7);
+}
+
+.cv-modal__line--error {
+  color: rgba(255, 80, 80, 0.6);
+}
+
+.cv-modal__line--info {
+  color: rgba(100, 180, 255, 0.7);
+}
+
+.cv-modal__line--header {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.cv-modal__line--blank {
+  height: 8px;
+}
+
+.cv-modal__line--progress-text {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cv-modal__line--ascii {
+  color: rgba(255, 200, 50, 0.5);
+  font-size: 0.72rem;
+  white-space: pre;
+  letter-spacing: 0.05em;
+}
+
+.cv-modal__line--message {
+  color: rgba(255, 200, 50, 0.8);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.cv-modal__line--sub {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+}
+
+.cv-modal__line--hint {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.72rem;
+  font-style: italic;
+}
+
+/* ── Progress Bar ── */
+.cv-modal__progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  margin: 4px 0;
+  overflow: hidden;
+}
+
+.cv-modal__progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.cv-modal__progress-bar--warn {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 200, 50, 0.5),
+    rgba(255, 200, 50, 0.8)
+  );
+}
+
+/* ── Spinner ── */
+.cv-modal__spinner {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 8px;
+}
+
+.cv-modal__spinner-dot {
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 200, 50, 0.7);
+  border-radius: 50%;
+  animation: cvSpinnerBounce 1s ease-in-out infinite;
+}
+
+.cv-modal__spinner-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.cv-modal__spinner-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes cvSpinnerBounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.5);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* ── Cursor line ── */
+.cv-modal__cursor-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cv-modal__cursor-line--visible {
+  opacity: 1;
+}
+
+.cv-modal__prompt-symbol {
+  color: rgba(80, 255, 80, 0.7);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(80, 255, 80, 0.3);
+}
+
+.cv-modal__blinking-cursor {
+  color: rgba(255, 255, 255, 0.6);
+  animation: bootCursorBlink 0.6s step-end infinite;
+}
+
+/* ── Close Button ── */
+.cv-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 16px auto 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.15em;
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.cv-modal__close--visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.3s ease 0.2s,
+    transform 0.3s ease 0.2s,
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.cv-modal__close span {
+  color: var(--color-text-muted);
+}
+
+.cv-modal__close:hover {
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .cv-modal__container {
+    max-width: 95%;
+  }
+
+  .cv-modal__body {
+    padding: 20px 16px 16px !important;
+  }
+
+  .cv-modal__line {
+    font-size: 0.7rem;
+    white-space: normal;
+  }
+
+  .cv-modal__line--ascii {
+    font-size: 0.55rem;
+  }
+
+  .cv-modal__close {
+    font-size: 0.68rem;
+    padding: 10px 24px;
+  }
+}
+
+@media (max-width: 380px) {
+  .cv-modal__line {
+    font-size: 0.62rem;
+  }
+
+  .cv-modal__line--ascii {
+    display: none;
+  }
+}
