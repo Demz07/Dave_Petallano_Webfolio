@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dave Quibral Petallano — Full-Stack Developer. Building responsive web applications driven by a passion for problem-solving."
+    />
+    <meta name="theme-color" content="#0a0a0a" />
+
+    <title>Dave Quibral Petallano // Full-Stack Developer</title>
+
+    <link rel="icon" type="image/png" href="assets/fav-icon.png" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════
+       PARTICLE CANVAS BACKGROUND
+  ═══════════════════════════════════════════ -->
+    <canvas id="particleCanvas" aria-hidden="true"></canvas>
+
+    <!-- ═══════════════════════════════════════════
+       NAVIGATION
+  ═══════════════════════════════════════════ -->
+    <nav class="nav" id="nav" role="navigation" aria-label="Main Navigation">
+      <div class="nav__container">
+        <a href="#hero" class="nav__logo" aria-label="Home">
+          <span class="nav__logo-bracket">{</span>
+          <span class="nav__logo-text">DQP</span>
+          <span class="nav__logo-bracket">}</span>
+        </a>
+
+        <button
+          class="nav__hamburger"
+          id="navToggle"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+        >
+          <span class="nav__hamburger-line"></span>
+          <span class="nav__hamburger-line"></span>
+          <span class="nav__hamburger-line"></span>
+        </button>
+
+        <ul class="nav__links" id="navLinks" role="list">
+          <li>
+            <a href="#about" class="nav__link" data-section="about"
+              >// Dossier</a
+            >
+          </li>
+          <li>
+            <a href="#projects" class="nav__link" data-section="projects"
+              >// Blueprints</a
+            >
+          </li>
+          <li>
+            <a href="#skills" class="nav__link" data-section="skills"
+              >// Laboratory</a
+            >
+          </li>
+          <li>
+            <a href="#contact" class="nav__link" data-section="contact"
+              >// Transmit</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════
+       SCROLL PROGRESS BAR
+  ═══════════════════════════════════════════ -->
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+    <!-- ═══════════════════════════════════════════
+       SECTION 1 — HERO / LANDING ZONE
+  ═══════════════════════════════════════════ -->
+    <section class="hero" id="hero">
+      <div class="hero__content">
+        <div class="hero__classification reveal">
+          <span class="hero__classification-line"></span>
+          <span class="hero__classification-text"
+            >CLASSIFICATION: PUBLIC // PORTFOLIO v1.0</span
+          >
+          <span class="hero__classification-line"></span>
+        </div>
+
+        <h1 class="hero__name reveal reveal--delay-1">
+          <span class="hero__name-first">Dave Quibral</span>
+          <span class="hero__name-last">Petallano</span>
+        </h1>
+
+        <div class="hero__separator reveal reveal--delay-2">
+          <span class="hero__separator-line"></span>
+          <span class="hero__separator-double-slash">//</span>
+          <span class="hero__separator-line"></span>
+        </div>
+
+        <p class="hero__title reveal reveal--delay-2">
+          <span class="hero__title-typing" id="typingText"></span>
+          <span class="hero__title-cursor" aria-hidden="true">|</span>
+        </p>
+
+        <p class="hero__tagline reveal reveal--delay-3">
+          An aspiring web developer, passionate about building practical<br />
+          and impactful digital solutions from the ground up.
+        </p>
+
+        <div class="hero__ctas reveal reveal--delay-4">
+          <a href="#projects" class="btn btn--primary">
+            <span class="btn__icon">◆</span>
+            View Blueprints
+          </a>
+          <a
+            href="https://github.com/Demz07"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn--secondary"
+          >
+            <span class="btn__icon">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                />
+              </svg>
+            </span>
+            See the Code
+          </a>
+        </div>
+
+        <div
+          class="hero__scroll-indicator reveal reveal--delay-5"
+          aria-hidden="true"
+        >
+          <div class="hero__scroll-mouse">
+            <div class="hero__scroll-wheel"></div>
+          </div>
+          <span class="hero__scroll-text">SCROLL TO EXPLORE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+       SECTION 2 — ABOUT / DOSSIER
+  ═══════════════════════════════════════════ -->
+    <section class="section about" id="about">
+      <div class="container">
+        <header class="section__header reveal">
+          <span class="section__number">01</span>
+          <h2 class="section__title">The Dossier</h2>
+          <div class="section__line"></div>
+          <p class="section__subtitle">// Personnel File — Clearance Granted</p>
+        </header>
+
+        <div class="about__grid">
+          <!-- Left: Headshot & Affiliations -->
+          <div class="about__photo-wrapper reveal">
+            <div class="glass-panel about__photo-frame">
+              <div class="about__photo-inner">
+                <!-- Replace with your actual headshot -->
+                <img
+                  src="assets/headshot.jpg"
+                  alt="Professional headshot of Dave Petallano"
+                  class="about__photo"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                />
+                <div class="about__photo-overlay"></div>
+              </div>
+              <div class="about__photo-scanline" aria-hidden="true"></div>
+            </div>
+            <div class="about__photo-label">
+              <span class="about__photo-label-dot"></span>
+              SUBJECT: PETALLANO, DAVE QUIBRAL
+            </div>
+
+            <!-- NEW: University & iBITS Logos -->
+            <div class="about__affiliations">
+              <p class="about__affiliations-title">// Affiliations</p>
+              <div class="about__affiliations-logos">
+                <img
+                  src="assets/pup-logo.png"
+                  alt="Polytechnic University of the Philippines Logo"
+                  class="affiliation-logo"
+                  width="60"
+                  height="60"
+                  loading="lazy"
+                />
+                <img
+                  src="assets/ibits-logo.png"
+                  alt="iBITS Logo"
+                  class="affiliation-logo"
+                  width="60"
+                  height="60"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Bio & Philosophy -->
+          <div class="about__content reveal">
+            <div class="glass-panel about__bio-panel">
+              <div class="glass-panel__header">
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-title">biography.md</span>
+              </div>
+              <div class="glass-panel__body">
+                <!-- REWRITTEN BIO -->
+                <p class="about__bio">
+                  <span class="code-comment"
+                    >/** Student Developer // iBITS Member */</span
+                  ><br /><br />
+                  Currently a student at the
+                  <strong
+                    >Polytechnic University of the Philippines Lopez, Quezon
+                    Campus</strong
+                  >
+                  and a dedicated member of the Institute of Brilliant
+                  Information Technology Students (iBITS). My journey into web
+                  development is fueled by a passion for creating robust systems
+                  that improve everyday processes.<br /><br />
+                  This passion culminated in a significant collaborative project
+                  undertaken with my classmates. As a cornerstone of our
+                  studies, we took on the challenge of translating a real-world
+                  campus need into a functional digital platform for our student
+                  organization. This was a fantastic experience in applying our
+                  cumulative knowledge and navigating the full development
+                  lifecycle as a team.
+                </p>
+              </div>
+            </div>
+
+            <div class="glass-panel about__philosophy-panel">
+              <div class="glass-panel__header">
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-title">principles.config</span>
+              </div>
+              <div class="glass-panel__body">
+                <p class="about__philosophy">
+                  <span class="code-keyword">const</span>
+                  <span class="code-variable"> principles</span>
+                  <span class="code-operator"> = </span>
+                  <span class="code-bracket">{</span><br />
+                  <span class="code-indent">teamwork:</span>
+                  <span class="code-string">
+                    "Collaboration leads to better solutions"</span
+                  >,<br />
+                  <span class="code-indent">code:</span>
+                  <span class="code-string">
+                    "Clarity and readability are key"</span
+                  >
+                  ,<br />
+                  <span class="code-indent">learning:</span>
+                  <span class="code-string">
+                    "Every project is a chance to grow."</span
+                  ><br />
+                  <span class="code-bracket">}</span>;
+                </p>
+              </div>
+            </div>
+
+            <a
+              href="assets/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary about__cv-btn"
+            >
+              <span class="btn__icon">⬡</span>
+              Download Declassified CV
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+       SECTION 3 — PROJECTS / BLUEPRINTS
+  ═══════════════════════════════════════════ -->
+    <section class="section projects" id="projects">
+      <div class="container">
+        <header class="section__header reveal">
+          <span class="section__number">02</span>
+          <h2 class="section__title">The Blueprints</h2>
+          <div class="section__line"></div>
+          <p class="section__subtitle">// Declassified Project Files</p>
+        </header>
+
+        <div class="projects__grid">
+          <!-- iBITS Portal PROJECT CARD -->
+          <article class="project-card glass-panel reveal" tabindex="0">
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+            </div>
+            <h3 class="project-card__title">iBITS Portal</h3>
+            <p class="project-card__description">
+              A comprehensive digital platform to modernize campus
+              administrative tasks like attendance and payments for student
+              organizations at the PUP Lopez, Quezon Branch.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">ASP.NET Core MVC</span>
+              <span class="tech-tag">C#</span>
+              <span class="tech-tag">SQL Server</span>
+              <span class="tech-tag">Bootstrap 5</span>
+              <span class="tech-tag">QR Code Tech</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+                style="pointer-events: none; opacity: 0.5"
+                aria-disabled="true"
+                title="Internal project - no live demo available"
+              >
+                Live Demo
+              </a>
+              <a
+                href="https://github.com/Demz07/iBITS-Portal"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
+
+          <!-- More project cards can be added here in the future -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+       SECTION 4 — SKILLS / LABORATORY
+  ═══════════════════════════════════════════ -->
+    <section class="section skills" id="skills">
+      <div class="container">
+        <header class="section__header reveal">
+          <span class="section__number">03</span>
+          <h2 class="section__title">The Laboratory</h2>
+          <div class="section__line"></div>
+          <p class="section__subtitle">// Technical Arsenal & Proficiencies</p>
+        </header>
+
+        <div class="skills__grid">
+          <div class="glass-panel skills__category reveal">
+            <div class="glass-panel__header">
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-title">languages.list</span>
+            </div>
+            <div class="glass-panel__body">
+              <div class="skills__tags">
+                <span class="skill-tag">HTML5</span>
+                <span class="skill-tag">CSS3</span>
+                <span class="skill-tag">JavaScript</span>
+                <span class="skill-tag">C#</span>
+                <span class="skill-tag">SQL</span>
+                <span class="skill-tag">PHP</span>
+                <span class="skill-tag">C++</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel skills__category reveal">
+            <div class="glass-panel__header">
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-title">backend_db.config</span>
+            </div>
+            <div class="glass-panel__body">
+              <div class="skills__tags">
+                <span class="skill-tag">ASP.NET Core MVC</span>
+                <span class="skill-tag">Microsoft SQL Server</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="glass-panel skills__category skills__category--wide reveal"
+          >
+            <div class="glass-panel__header">
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-dot"></span>
+              <span class="glass-panel__header-title"
+                >tools_platforms.config</span
+              >
+            </div>
+            <div class="glass-panel__body">
+              <div class="skills__tags">
+                <span class="skill-tag">Git</span>
+                <span class="skill-tag">GitHub</span>
+                <span class="skill-tag">Visual Studio</span>
+                <span class="skill-tag">VS Code</span>
+                <span class="skill-tag">Figma</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+       SECTION 5 — CONTACT / SECURE CHANNEL
+  ═══════════════════════════════════════════ -->
+    <section class="section contact" id="contact">
+      <div class="container">
+        <header class="section__header reveal">
+          <span class="section__number">04</span>
+          <h2 class="section__title">Open Secure Channel</h2>
+          <div class="section__line"></div>
+          <p class="section__subtitle">// Initiate Transmission</p>
+        </header>
+
+        <div class="contact__grid">
+          <div class="contact__info reveal">
+            <div class="glass-panel contact__info-panel">
+              <div class="glass-panel__header">
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-title"
+                  >connection_status.log</span
+                >
+              </div>
+              <div class="glass-panel__body">
+                <p class="contact__status-text">
+                  <span class="contact__status-indicator">
+                    <span class="contact__status-dot"></span>
+                    OPEN TO NEW OPPORTUNITIES
+                  </span>
+                </p>
+                <p class="contact__info-text">
+                  <span class="code-comment">// Preferred channels</span><br />
+                  <span class="code-keyword">email:</span>
+                  <span class="code-string"> "petallanodave@gmail.com"</span
+                  ><br />
+                  <span class="code-keyword">phone:</span>
+                  <span class="code-string"> "09300601383"</span><br />
+                </p>
+              </div>
+            </div>
+
+            <div class="contact__socials">
+              <a
+                href="https://github.com/Demz07"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact__social-link glass-panel"
+                aria-label="GitHub Profile"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                  />
+                </svg>
+                <span>GitHub</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="contact__form-wrapper reveal">
+            <form
+              class="glass-panel contact__form"
+              id="contactForm"
+              action="php/contact.php"
+              method="POST"
+            >
+              <div class="glass-panel__header">
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-dot"></span>
+                <span class="glass-panel__header-title"
+                  >new_transmission.sh</span
+                >
+              </div>
+              <div class="glass-panel__body">
+                <div class="form-group">
+                  <label for="name" class="form-label">
+                    <span class="code-keyword">sender_name</span>
+                    <span class="code-operator"> = </span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="form-input"
+                    placeholder='"Your Name"'
+                    required
+                    autocomplete="name"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="email" class="form-label">
+                    <span class="code-keyword">sender_email</span>
+                    <span class="code-operator"> = </span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-input"
+                    placeholder='"your@email.com"'
+                    required
+                    autocomplete="email"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="message" class="form-label">
+                    <span class="code-keyword">message_body</span>
+                    <span class="code-operator"> = </span>
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    class="form-input form-textarea"
+                    placeholder='"Your message..."'
+                    rows="6"
+                    required
+                  ></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn--primary contact__submit-btn"
+                  id="submitBtn"
+                >
+                  <span class="btn__icon">▶</span>
+                  <span class="btn__text">Transmit Message</span>
+                </button>
+
+                <p class="contact__form-note">
+                  <span class="code-comment"
+                    >// Form backend can be configured via PHP.</span
+                  >
+                </p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__content">
+          <p class="footer__text">
+            <span class="code-comment">/**</span><br />
+            <span class="code-comment"
+              >&nbsp;* Designed & Built by Dave Quibral Petallano</span
+            ><br />
+            <span class="code-comment"
+              >&nbsp;* © <span id="currentYear"></span> — All rights
+              reserved.</span
+            ><br />
+            <span class="code-comment">&nbsp;*/</span>
+          </p>
+          <div class="footer__links">
+            <a
+              href="https://github.com/Demz07"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
