@@ -3012,3 +3012,443 @@ button:focus:not(:focus-visible) {
     opacity: 1;
   }
 }
+
+/* ═══════════════════════════════════════════
+   LOGO MODAL — Terminal Command Popup
+   ═══════════════════════════════════════════ */
+
+/* ── Make logos clickable ── */
+.affiliation-logo {
+  cursor: pointer;
+  transition:
+    filter 0.3s ease,
+    transform 0.3s cubic-bezier(0.03, 0.98, 0.52, 0.99);
+}
+
+.affiliation-logo:hover {
+  filter: grayscale(0) brightness(1.2) !important;
+  transform: translateY(-4px) scale(1.08);
+}
+
+.affiliation-logo:active {
+  transform: translateY(-1px) scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* ── Tap ripple effect ── */
+.affiliation-logo--tapped {
+  animation: logoTapRipple 0.4s ease-out;
+}
+
+@keyframes logoTapRipple {
+  0% {
+    filter: grayscale(0) brightness(2)
+      drop-shadow(0 0 20px rgba(255, 255, 255, 0.8));
+    transform: scale(0.92);
+  }
+  50% {
+    filter: grayscale(0) brightness(1.5)
+      drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
+    transform: scale(1.08);
+  }
+  100% {
+    filter: grayscale(1) brightness(1.5);
+    transform: scale(1);
+  }
+}
+
+/* ── Modal Overlay ── */
+.logo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.4s var(--ease-out-expo),
+    visibility 0.4s var(--ease-out-expo);
+  padding: 20px;
+}
+
+.logo-modal--active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+/* ── Backdrop ── */
+.logo-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Container ── */
+.logo-modal__container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 600px;
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.logo-modal--active .logo-modal__container {
+  transform: translateY(0) scale(1);
+}
+
+/* ── Glitch entrance ── */
+.logo-modal--entering .logo-modal__container {
+  animation: modalGlitchIn 0.5s steps(3) forwards;
+}
+
+@keyframes modalGlitchIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95) skewX(-5deg);
+    filter: brightness(2) hue-rotate(90deg);
+  }
+  20% {
+    opacity: 0.5;
+    transform: translateY(-10px) scale(1.02) skewX(3deg);
+    filter: brightness(1.5) hue-rotate(-45deg);
+  }
+  40% {
+    opacity: 0.8;
+    transform: translateY(5px) scale(0.98) skewX(-1deg);
+    filter: brightness(1.2);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.01) skewX(0.5deg);
+    filter: brightness(1.1);
+  }
+  80% {
+    transform: translateY(1px) scale(1) skewX(0deg);
+    filter: brightness(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) skewX(0deg);
+    filter: none;
+  }
+}
+
+/* ── Panel ── */
+.logo-modal__panel {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.logo-modal__body {
+  padding: 24px 24px 20px !important;
+}
+
+/* ── Prompt Line ── */
+.logo-modal__prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+
+.logo-modal__prompt-symbol {
+  color: rgba(80, 255, 80, 0.7);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(80, 255, 80, 0.3);
+}
+
+.logo-modal__prompt-cmd {
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+/* ── Command typing animation ── */
+.logo-modal__prompt-cmd {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid rgba(80, 255, 80, 0.6);
+  width: 0;
+  animation: none;
+}
+
+.logo-modal__prompt-cmd--typing {
+  animation:
+    cmdTyping 0.8s steps(25) forwards,
+    cmdCursorBlink 0.5s step-end 0.8s 3;
+}
+
+@keyframes cmdTyping {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes cmdCursorBlink {
+  0%,
+  100% {
+    border-right-color: rgba(80, 255, 80, 0.6);
+  }
+  50% {
+    border-right-color: transparent;
+  }
+}
+
+/* ── Divider ── */
+.logo-modal__divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  margin-bottom: 20px;
+}
+
+/* ── Output Area ── */
+.logo-modal__output {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  min-height: 120px;
+}
+
+/* ── Logo Display ── */
+.logo-modal__logo-display {
+  opacity: 0;
+  transform: scale(0.5) rotateY(90deg);
+  transition:
+    opacity 0.6s var(--ease-out-expo),
+    transform 0.6s var(--ease-out-expo);
+}
+
+.logo-modal__logo-display--visible {
+  opacity: 1;
+  transform: scale(1) rotateY(0deg);
+}
+
+.logo-modal__logo-display img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: grayscale(0) brightness(1.2);
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ── Text Lines ── */
+.logo-modal__text-lines {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.logo-modal__text-line {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-text-primary);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+.logo-modal__text-line--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Line-by-line character reveal ── */
+.logo-modal__char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.06s ease,
+    transform 0.06s ease;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.logo-modal__char--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.logo-modal__char--space {
+  width: 0.35em;
+}
+
+/* ── Scan effect on text ── */
+.logo-modal__text-line--scanned {
+  animation: textScanFlash 0.3s ease;
+}
+
+@keyframes textScanFlash {
+  0% {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    color: #fff;
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    text-shadow: none;
+    color: var(--color-text-primary);
+  }
+}
+
+/* ── Bottom cursor line ── */
+.logo-modal__cursor-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.logo-modal__cursor-line--visible {
+  opacity: 1;
+}
+
+.logo-modal__blinking-cursor {
+  color: rgba(255, 255, 255, 0.6);
+  animation: bootCursorBlink 0.6s step-end infinite;
+}
+
+/* ── Close Button ── */
+.logo-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 16px auto 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.15em;
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.logo-modal__close--visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.3s ease 0.2s,
+    transform 0.3s ease 0.2s,
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.logo-modal__close span {
+  color: var(--color-text-muted);
+}
+
+.logo-modal__close:hover {
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Scanline overlay inside modal ── */
+.logo-modal__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  z-index: 100;
+}
+
+/* ═══════════════════════════════════════════
+   LOGO MODAL — Responsive
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .logo-modal__container {
+    max-width: 95%;
+  }
+
+  .logo-modal__body {
+    padding: 20px 16px 16px !important;
+  }
+
+  .logo-modal__text-line {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .logo-modal__prompt {
+    font-size: 0.75rem;
+  }
+
+  .logo-modal__logo-display img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .logo-modal__close {
+    font-size: 0.68rem;
+    padding: 10px 24px;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo-modal__text-line {
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    word-break: break-word;
+  }
+
+  .logo-modal__prompt-cmd {
+    font-size: 0.7rem;
+  }
+}

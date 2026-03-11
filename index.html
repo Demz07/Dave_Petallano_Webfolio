@@ -715,6 +715,41 @@
       </div>
     </footer>
 
+<!-- ═══════════════════════════════════════════
+     LOGO MODAL — Terminal Command Animation
+═══════════════════════════════════════════ -->
+<div class="logo-modal" id="logoModal" aria-hidden="true">
+  <div class="logo-modal__backdrop" id="logoModalBackdrop"></div>
+  <div class="logo-modal__container">
+    <div class="logo-modal__panel glass-panel">
+      <div class="glass-panel__header">
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-dot"></span>
+        <span class="glass-panel__header-title" id="logoModalHeaderTitle">identity.sh</span>
+      </div>
+      <div class="glass-panel__body logo-modal__body">
+        <div class="logo-modal__prompt">
+          <span class="logo-modal__prompt-symbol">❯</span>
+          <span class="logo-modal__prompt-cmd" id="logoModalCmd">cat /org/identity.dat</span>
+        </div>
+        <div class="logo-modal__divider"></div>
+        <div class="logo-modal__output" id="logoModalOutput">
+          <div class="logo-modal__logo-display" id="logoModalLogoDisplay"></div>
+          <div class="logo-modal__text-lines" id="logoModalTextLines"></div>
+        </div>
+        <div class="logo-modal__cursor-line">
+          <span class="logo-modal__prompt-symbol">❯</span>
+          <span class="logo-modal__blinking-cursor">█</span>
+        </div>
+      </div>
+    </div>
+    <button class="logo-modal__close" id="logoModalClose" aria-label="Close modal">
+      <span>[</span> ESC <span>]</span>
+    </button>
+  </div>
+</div>
+
     <script src="js/main.js"></script>
   </body>
 </html>

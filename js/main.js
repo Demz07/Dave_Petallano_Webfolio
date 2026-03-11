@@ -1195,6 +1195,255 @@
   })();
 
   // ─────────────────────────────────────────
+  // 13. LOGO MODAL — Terminal Command Popup
+  // ─────────────────────────────────────────
+  const LogoModal = (() => {
+    const modal = document.getElementById("logoModal");
+    const backdrop = document.getElementById("logoModalBackdrop");
+    const closeBtn = document.getElementById("logoModalClose");
+    const headerTitle = document.getElementById("logoModalHeaderTitle");
+    const cmdEl = document.getElementById("logoModalCmd");
+    const outputEl = document.getElementById("logoModalOutput");
+    const logoDisplay = document.getElementById("logoModalLogoDisplay");
+    const textLinesEl = document.getElementById("logoModalTextLines");
+    const cursorLine = document.querySelector(".logo-modal__cursor-line");
+
+    if (!modal) return { init: () => {} };
+
+    // Logo data configuration
+    const logoData = {
+      pup: {
+        headerTitle: "pup_identity.sh",
+        command: "cat /org/pup/identity.dat",
+        lines: [
+          "POLYTECHNIC UNIVERSITY",
+          "OF THE PHILIPPINES",
+          "LOPEZ, QUEZON CAMPUS",
+        ],
+        imgSrc: "assets/pup-logo.png",
+        imgAlt: "PUP Logo",
+      },
+      ibits: {
+        headerTitle: "ibits_identity.sh",
+        command: "cat /org/ibits/identity.dat",
+        lines: [
+          "INSTITUTE OF BRILLIANT",
+          "INFORMATION AND",
+          "TECHNOLOGY STUDENTS",
+        ],
+        imgSrc: "assets/ibits-logo.png",
+        imgAlt: "iBITS Logo",
+      },
+    };
+
+    let isAnimating = false;
+    let currentTimeouts = [];
+
+    function sleep(ms) {
+      return new Promise((resolve) => {
+        const id = setTimeout(resolve, ms);
+        currentTimeouts.push(id);
+      });
+    }
+
+    function clearAllTimeouts() {
+      currentTimeouts.forEach((id) => clearTimeout(id));
+      currentTimeouts = [];
+    }
+
+    // Type characters one by one into a line element
+    async function typeLineChars(lineEl, text) {
+      const chars = text.split("");
+      chars.forEach((char) => {
+        const span = document.createElement("span");
+        span.classList.add("logo-modal__char");
+        if (char === " ") {
+          span.classList.add("logo-modal__char--space");
+          span.innerHTML = "&nbsp;";
+        } else {
+          span.textContent = char;
+        }
+        lineEl.appendChild(span);
+      });
+
+      const allChars = lineEl.querySelectorAll(".logo-modal__char");
+      for (let i = 0; i < allChars.length; i++) {
+        allChars[i].classList.add("logo-modal__char--visible");
+        // Sound-like speed variation
+        const speed = 25 + (Math.random() > 0.85 ? 60 : Math.random() * 15);
+        await sleep(speed);
+      }
+
+      // Flash effect when line completes
+      lineEl.classList.add("logo-modal__text-line--scanned");
+    }
+
+    async function runAnimation(data) {
+      isAnimating = true;
+
+      // Set header
+      headerTitle.textContent = data.headerTitle;
+
+      // Reset elements
+      cmdEl.style.width = "0";
+      cmdEl.classList.remove("logo-modal__prompt-cmd--typing");
+      logoDisplay.classList.remove("logo-modal__logo-display--visible");
+      logoDisplay.innerHTML = "";
+      textLinesEl.innerHTML = "";
+      cursorLine.classList.remove("logo-modal__cursor-line--visible");
+      closeBtn.classList.remove("logo-modal__close--visible");
+
+      // Set command text
+      cmdEl.textContent = data.command;
+
+      // Phase 1: Type the command
+      await sleep(300);
+      cmdEl.classList.add("logo-modal__prompt-cmd--typing");
+
+      // Phase 2: Show logo with 3D flip
+      await sleep(1000);
+      const logoImg = document.createElement("img");
+      logoImg.src = data.imgSrc;
+      logoImg.alt = data.imgAlt;
+      logoImg.width = 80;
+      logoImg.height = 80;
+      logoDisplay.appendChild(logoImg);
+      logoDisplay.classList.add("logo-modal__logo-display--visible");
+
+      // Phase 3: Type text lines one by one
+      await sleep(500);
+
+      for (let i = 0; i < data.lines.length; i++) {
+        const lineEl = document.createElement("div");
+        lineEl.classList.add("logo-modal__text-line");
+        textLinesEl.appendChild(lineEl);
+
+        // Make line visible (container)
+        await sleep(150);
+        lineEl.classList.add("logo-modal__text-line--visible");
+
+        // Type characters
+        await typeLineChars(lineEl, data.lines[i]);
+
+        await sleep(200);
+      }
+
+      // Phase 4: Show cursor and close button
+      await sleep(300);
+      cursorLine.classList.add("logo-modal__cursor-line--visible");
+      closeBtn.classList.add("logo-modal__close--visible");
+
+      isAnimating = false;
+    }
+
+    function openModal(logoKey) {
+      const data = logoData[logoKey];
+      if (!data) return;
+
+      // Lock body scroll
+      document.body.style.overflow = "hidden";
+
+      // Show modal with glitch entrance
+      modal.classList.add("logo-modal--active", "logo-modal--entering");
+      modal.setAttribute("aria-hidden", "false");
+
+      // Remove entering class after animation
+      setTimeout(() => {
+        modal.classList.remove("logo-modal--entering");
+      }, 500);
+
+      // Run the terminal animation
+      runAnimation(data);
+    }
+
+    function closeModal() {
+      clearAllTimeouts();
+      isAnimating = false;
+
+      modal.classList.remove("logo-modal--active");
+      modal.setAttribute("aria-hidden", "true");
+
+      // Unlock body scroll
+      document.body.style.overflow = "";
+
+      // Reset after transition
+      setTimeout(() => {
+        cmdEl.classList.remove("logo-modal__prompt-cmd--typing");
+        cmdEl.style.width = "0";
+        logoDisplay.classList.remove("logo-modal__logo-display--visible");
+        logoDisplay.innerHTML = "";
+        textLinesEl.innerHTML = "";
+        cursorLine.classList.remove("logo-modal__cursor-line--visible");
+        closeBtn.classList.remove("logo-modal__close--visible");
+      }, 400);
+    }
+
+    function init() {
+      const logos = document.querySelectorAll(".affiliation-logo");
+
+      logos.forEach((logo) => {
+        const alt = (logo.getAttribute("alt") || "").toLowerCase();
+        let logoKey = null;
+
+        if (alt.includes("polytechnic") || alt.includes("pup")) {
+          logoKey = "pup";
+        } else if (alt.includes("ibits") || alt.includes("bits")) {
+          logoKey = "ibits";
+        }
+
+        if (logoKey) {
+          // Click/tap handler
+          logo.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            // Tap ripple animation
+            logo.classList.add("affiliation-logo--tapped");
+            setTimeout(() => {
+              logo.classList.remove("affiliation-logo--tapped");
+            }, 400);
+
+            // Small delay for the ripple to show
+            setTimeout(() => {
+              openModal(logoKey);
+            }, 200);
+          });
+
+          // Make keyboard accessible
+          logo.setAttribute("tabindex", "0");
+          logo.setAttribute("role", "button");
+          logo.setAttribute(
+            "aria-label",
+            `View ${logoKey.toUpperCase()} information`,
+          );
+
+          logo.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              logo.click();
+            }
+          });
+        }
+      });
+
+      // Close handlers
+      if (closeBtn) closeBtn.addEventListener("click", closeModal);
+      if (backdrop) backdrop.addEventListener("click", closeModal);
+
+      // ESC key close
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          modal.classList.contains("logo-modal--active")
+        ) {
+          closeModal();
+        }
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
   // INITIALIZE EVERYTHING ON DOM READY
   // ─────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", () => {
@@ -1210,5 +1459,6 @@
     MagneticButtons.init();
     CursorGlow.init();
     AntiGravityFloat.init();
+    LogoModal.init();
   });
 })();
