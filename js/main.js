@@ -6,6 +6,292 @@
   "use strict";
 
   // ─────────────────────────────────────────
+  // 0. BOOT SEQUENCE — System Startup
+  // ─────────────────────────────────────────
+  const BootSequence = (() => {
+    const screen = document.getElementById("bootScreen");
+    const linesContainer = document.getElementById("bootLines");
+
+    if (!screen || !linesContainer) return { init: () => {} };
+
+    // ── Boot Script — Each line is {text, class, delay, special} ──
+    const bootScript = [
+      {
+        text: "BIOS v3.2.1 — POST Check",
+        cls: "boot-line--system",
+        delay: 200,
+      },
+      {
+        text: "Memory Test.......... 8192MB OK",
+        cls: "boot-line--ok",
+        delay: 150,
+      },
+      {
+        text: "CPU: Intel i7-13700K @ 5.4GHz",
+        cls: "boot-line--system",
+        delay: 120,
+      },
+      {
+        text: "GPU: Integrated Neural Display",
+        cls: "boot-line--system",
+        delay: 120,
+      },
+      { text: "Storage: 512GB NVMe SSD", cls: "boot-line--system", delay: 100 },
+      {
+        text: "Network: Ethernet 1Gbps [CONNECTED]",
+        cls: "boot-line--ok",
+        delay: 130,
+      },
+      { text: "", cls: "boot-line--system", delay: 80 },
+      {
+        text: "═══════════════════════════════════════",
+        cls: "boot-line--header",
+        delay: 100,
+      },
+      { text: "  PORTFOLIO SYSTEM v1.0", cls: "boot-line--header", delay: 100 },
+      {
+        text: "═══════════════════════════════════════",
+        cls: "boot-line--header",
+        delay: 150,
+      },
+      { text: "", cls: "boot-line--system", delay: 80 },
+      {
+        text: "Loading kernel modules...",
+        cls: "boot-line--system",
+        delay: 200,
+      },
+      { text: "[OK] particle_engine.sys", cls: "boot-line--ok", delay: 100 },
+      { text: "[OK] glass_renderer.sys", cls: "boot-line--ok", delay: 80 },
+      { text: "[OK] tilt_physics.sys", cls: "boot-line--ok", delay: 90 },
+      {
+        text: "[WARN] coffee_supply.sys — LOW",
+        cls: "boot-line--warn",
+        delay: 120,
+      },
+      { text: "[OK] glitch_shader.sys", cls: "boot-line--ok", delay: 80 },
+      { text: "", cls: "boot-line--system", delay: 100 },
+      {
+        text: "Initializing identity matrix...",
+        cls: "boot-line--system",
+        delay: 300,
+      },
+      { text: "", cls: "boot-line--system", delay: 100 },
+      { text: "SUBJECT IDENTIFIED:", cls: "boot-line--title", delay: 200 },
+      {
+        text: "Dave Quibral",
+        cls: "boot-line--name",
+        delay: 0,
+        special: "typeChars",
+      },
+      {
+        text: "Petallano",
+        cls: "boot-line--name-sub",
+        delay: 0,
+        special: "typeChars",
+      },
+      { text: "", cls: "boot-line--system", delay: 200 },
+      {
+        text: "ROLE: Aspiring .NET & Web Developer",
+        cls: "boot-line--title",
+        delay: 150,
+      },
+      { text: "", cls: "boot-line--system", delay: 100 },
+      {
+        text: "progress",
+        cls: "boot-line--progress",
+        delay: 0,
+        special: "progressBar",
+      },
+      { text: "", cls: "boot-line--system", delay: 100 },
+      {
+        text: "✓ SYSTEM READY — LAUNCHING INTERFACE",
+        cls: "boot-line--complete",
+        delay: 400,
+      },
+    ];
+
+    // ── Type characters one-by-one ──
+    function typeCharacters(container, text) {
+      return new Promise((resolve) => {
+        const chars = text.split("");
+        let i = 0;
+
+        // Create all chars hidden first
+        chars.forEach((char) => {
+          const span = document.createElement("span");
+          span.classList.add("boot-char");
+          if (char === " ") {
+            span.classList.add("boot-char--space");
+            span.innerHTML = "&nbsp;";
+          } else {
+            span.textContent = char;
+          }
+          container.appendChild(span);
+        });
+
+        const allChars = container.querySelectorAll(".boot-char");
+
+        function revealNext() {
+          if (i >= allChars.length) {
+            resolve();
+            return;
+          }
+
+          allChars[i].classList.add("boot-char--visible");
+
+          // Random speed variation — sometimes fast burst, sometimes pause
+          const baseSpeed = 50;
+          const variation = Math.random() > 0.85 ? 120 : Math.random() * 30;
+          i++;
+          setTimeout(revealNext, baseSpeed + variation);
+        }
+
+        revealNext();
+      });
+    }
+
+    // ── Animate progress bar ──
+    function animateProgress(container) {
+      return new Promise((resolve) => {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("boot-progress");
+
+        const bar = document.createElement("div");
+        bar.classList.add("boot-progress__bar");
+        wrapper.appendChild(bar);
+        container.appendChild(wrapper);
+
+        let progress = 0;
+        const steps = [
+          { target: 25, delay: 100 },
+          { target: 45, delay: 150 },
+          { target: 60, delay: 80 },
+          { target: 72, delay: 200 },
+          { target: 88, delay: 100 },
+          { target: 95, delay: 150 },
+          { target: 100, delay: 80 },
+        ];
+
+        let stepIndex = 0;
+
+        function nextStep() {
+          if (stepIndex >= steps.length) {
+            resolve();
+            return;
+          }
+
+          const step = steps[stepIndex];
+          bar.style.width = step.target + "%";
+          stepIndex++;
+          setTimeout(nextStep, step.delay);
+        }
+
+        nextStep();
+      });
+    }
+
+    // ── Trigger a screen glitch ──
+    function triggerGlitch() {
+      screen.classList.add("boot-screen--glitch");
+      setTimeout(() => {
+        screen.classList.remove("boot-screen--glitch");
+      }, 150);
+    }
+
+    // ── Main Boot Runner ──
+    async function runBoot() {
+      // Lock scroll during boot
+      document.body.style.overflow = "hidden";
+
+      for (let i = 0; i < bootScript.length; i++) {
+        const entry = bootScript[i];
+
+        const line = document.createElement("div");
+        line.classList.add("boot-line");
+        if (entry.cls) line.classList.add(entry.cls);
+
+        linesContainer.appendChild(line);
+
+        // Trigger random glitches
+        if (Math.random() > 0.82 && !entry.special) {
+          triggerGlitch();
+        }
+
+        if (entry.special === "typeChars") {
+          // Show line container first
+          line.classList.add("boot-line--visible");
+          await typeCharacters(line, entry.text);
+
+          // Glitch flash when name appears
+          triggerGlitch();
+          await sleep(200);
+        } else if (entry.special === "progressBar") {
+          line.classList.add("boot-line--visible");
+          await animateProgress(line);
+        } else {
+          line.textContent = entry.text;
+
+          await sleep(entry.delay || 100);
+          line.classList.add("boot-line--visible");
+        }
+
+        // Auto-scroll the boot content to bottom
+        linesContainer.scrollTop = linesContainer.scrollHeight;
+      }
+
+      // ── Boot Complete — Dismiss Screen ──
+      await sleep(600);
+
+      // Final big glitch
+      triggerGlitch();
+      await sleep(200);
+      triggerGlitch();
+      await sleep(100);
+
+      // Flicker and fade out
+      screen.classList.add("boot-screen--complete");
+
+      await sleep(800);
+      screen.classList.add("boot-screen--hidden");
+
+      // Unlock scroll
+      document.body.style.overflow = "";
+
+      // Small delay then let hero reveals kick in
+      await sleep(200);
+
+      // Trigger hero reveals
+      const heroReveals = document.querySelectorAll(".hero .reveal");
+      heroReveals.forEach((el) => el.classList.add("reveal--visible"));
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    function init() {
+      // Skip boot on reduced motion
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        screen.classList.add("boot-screen--hidden");
+        return;
+      }
+
+      // Check if already booted this session
+      if (sessionStorage.getItem("portfolio-booted")) {
+        screen.classList.add("boot-screen--hidden");
+        return;
+      }
+
+      // Run the boot
+      runBoot().then(() => {
+        sessionStorage.setItem("portfolio-booted", "true");
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
   // 1. CLI TERMINAL BACKGROUND (Canvas)
   // ─────────────────────────────────────────
   const ParticleNetwork = (() => {
@@ -507,11 +793,19 @@
 
       if (!reveals.length) return;
 
-      // Immediately reveal hero elements
-      const heroReveals = document.querySelectorAll(".hero .reveal");
-      setTimeout(() => {
-        heroReveals.forEach((el) => el.classList.add("reveal--visible"));
-      }, 200);
+      // Only auto-reveal hero if boot screen is already hidden
+      const bootScreen = document.getElementById("bootScreen");
+      const bootAlreadyDone =
+        !bootScreen ||
+        bootScreen.classList.contains("boot-screen--hidden") ||
+        sessionStorage.getItem("portfolio-booted");
+
+      if (bootAlreadyDone) {
+        const heroReveals = document.querySelectorAll(".hero .reveal");
+        setTimeout(() => {
+          heroReveals.forEach((el) => el.classList.add("reveal--visible"));
+        }, 200);
+      }
 
       const observer = new IntersectionObserver(
         (entries) => {
@@ -904,6 +1198,7 @@
   // INITIALIZE EVERYTHING ON DOM READY
   // ─────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", () => {
+    BootSequence.init();
     ParticleNetwork.init();
     TypingEffect.init();
     ScrollReveal.init();

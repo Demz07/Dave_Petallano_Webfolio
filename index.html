@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Dave Quibral Petallano — Full-Stack Developer. Building responsive web applications driven by a passion for problem-solving."
+      content="Dave Quibral Petallano — Aspiring Web Developer. Passionate about building clean, purposeful applications and growing every day as a developer."
     />
     <meta name="theme-color" content="#0a0a0a" />
 
-    <title>Dave Quibral Petallano // Full-Stack Developer</title>
+    <title>Dave Quibral Petallano // Aspiring Web Developer</title>
 
     <link rel="icon" type="image/png" href="assets/fav-icon.png" />
     <!-- Fonts -->
@@ -21,6 +21,11 @@
     />
 
     <link rel="stylesheet" href="css/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
   </head>
   <body>
     <!-- ═══════════════════════════════════════════
@@ -81,8 +86,20 @@
     <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
     <!-- ═══════════════════════════════════════════
-       SECTION 1 — HERO / LANDING ZONE
-  ═══════════════════════════════════════════ -->
+     BOOT SCREEN OVERLAY
+═══════════════════════════════════════════ -->
+    <div class="boot-screen" id="bootScreen" aria-hidden="true">
+      <div class="boot-screen__content">
+        <div class="boot-screen__lines" id="bootLines"></div>
+        <div class="boot-screen__cursor">█</div>
+      </div>
+      <div class="boot-screen__scanlines"></div>
+      <div class="boot-screen__vignette"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+     SECTION 1 — HERO / LANDING ZONE
+═══════════════════════════════════════════ -->
     <section class="hero" id="hero">
       <div class="hero__content">
         <div class="hero__classification reveal">
@@ -94,8 +111,15 @@
         </div>
 
         <h1 class="hero__name reveal reveal--delay-1">
-          <span class="hero__name-first">Dave Quibral</span>
-          <span class="hero__name-last">Petallano</span>
+          <span
+            class="hero__name-first"
+            id="heroNameFirst"
+            data-text="Dave Quibral"
+            >Dave Quibral</span
+          >
+          <span class="hero__name-last" id="heroNameLast" data-text="Petallano"
+            >Petallano</span
+          >
         </h1>
 
         <div class="hero__separator reveal reveal--delay-2">
@@ -142,16 +166,19 @@
           </a>
         </div>
 
-        <div
-          class="hero__scroll-indicator reveal reveal--delay-5"
-          aria-hidden="true"
-        >
-          <div class="hero__scroll-mouse">
-            <div class="hero__scroll-wheel"></div>
-          </div>
-          <span class="hero__scroll-text">SCROLL TO EXPLORE</span>
-        </div>
-      </div>
+       <div class="hero__scroll-indicator reveal reveal--delay-5" aria-hidden="true">
+  <!-- Desktop: Mouse icon -->
+  <div class="hero__scroll-mouse hero__scroll-indicator--desktop">
+    <div class="hero__scroll-wheel"></div>
+  </div>
+  
+  <!-- Mobile: Bootstrap Touch Icon -->
+  <div class="hero__scroll-touch hero__scroll-indicator--mobile">
+    <i class="bi bi-hand-index-thumb"></i>
+  </div>
+  
+  <span class="hero__scroll-text">SCROLL TO EXPLORE</span>
+</div>
     </section>
 
     <!-- ═══════════════════════════════════════════
@@ -171,16 +198,70 @@
           <div class="about__photo-wrapper reveal">
             <div class="glass-panel about__photo-frame">
               <div class="about__photo-inner">
-                <!-- Replace with your actual headshot -->
                 <img
                   src="assets/headshot.jpg"
                   alt="Professional headshot of Dave Petallano"
                   class="about__photo"
                   loading="lazy"
-                  width="400"
-                  height="400"
                 />
                 <div class="about__photo-overlay"></div>
+
+                <!-- ═══ GLITCH SYSTEM ═══ -->
+                <div class="glitch-system" aria-hidden="true">
+                  <!-- Black bar that covers the eye region -->
+                  <div class="glitch-bar">
+                    <div class="glitch-bar__slice"></div>
+                    <div class="glitch-bar__slice"></div>
+                    <div class="glitch-bar__slice"></div>
+                    <div class="glitch-bar__slice"></div>
+                    <div class="glitch-bar__slice"></div>
+                    <div class="glitch-bar__slice"></div>
+                    <div class="glitch-bar__slice"></div>
+
+                    <!-- CRT scanlines inside bar -->
+                    <div class="glitch-bar__scanlines"></div>
+
+                    <!-- Noise texture -->
+                    <div class="glitch-bar__noise"></div>
+                  </div>
+
+                  <!-- X O Eye Symbols -->
+                  <div class="glitch-eyes">
+                    <div class="glitch-eye glitch-eye--left">
+                      <span class="glitch-eye__symbol glitch-eye__symbol--x"
+                        >✕</span
+                      >
+                      <span class="glitch-eye__symbol glitch-eye__symbol--o"
+                        >◯</span
+                      >
+                      <span class="glitch-eye__glow"></span>
+                    </div>
+                    <div class="glitch-eye glitch-eye--right">
+                      <span class="glitch-eye__symbol glitch-eye__symbol--o"
+                        >◯</span
+                      >
+                      <span class="glitch-eye__symbol glitch-eye__symbol--x"
+                        >✕</span
+                      >
+                      <span class="glitch-eye__glow"></span>
+                    </div>
+                  </div>
+
+                  <!-- REDACTED label -->
+                  <div class="glitch-label">
+                    <span class="glitch-label__text">[REDACTED]</span>
+                    <span class="glitch-label__sub">IDENTITY MASKED</span>
+                  </div>
+
+                  <!-- Full-width flash lines (burst during glitch) -->
+                  <div class="glitch-flash glitch-flash--1"></div>
+                  <div class="glitch-flash glitch-flash--2"></div>
+                  <div class="glitch-flash glitch-flash--3"></div>
+
+                  <!-- Edge borders -->
+                  <div class="glitch-border glitch-border--top"></div>
+                  <div class="glitch-border glitch-border--bottom"></div>
+                </div>
               </div>
               <div class="about__photo-scanline" aria-hidden="true"></div>
             </div>
@@ -191,7 +272,7 @@
 
             <!-- NEW: University & iBITS Logos -->
             <div class="about__affiliations">
-              <p class="about__affiliations-title">// Affiliations</p>
+<p class="about__affiliations-title">// ORIGIN</p>
               <div class="about__affiliations-logos">
                 <img
                   src="assets/pup-logo.png"
@@ -226,24 +307,24 @@
                 <!-- REWRITTEN BIO -->
                 <p class="about__bio">
                   <span class="code-comment"
-                    >/** Student Developer // iBITS Member */</span
+                    >/** Student Developer // Always Building */</span
                   ><br /><br />
-                  Currently a student at the
-                  <strong
-                    >Polytechnic University of the Philippines Lopez, Quezon
-                    Campus</strong
-                  >
-                  and a dedicated member of the Institute of Brilliant
-                  Information Technology Students (iBITS). My journey into web
-                  development is fueled by a passion for creating robust systems
-                  that improve everyday processes.<br /><br />
-                  This passion culminated in a significant collaborative project
-                  undertaken with my classmates. As a cornerstone of our
-                  studies, we took on the challenge of translating a real-world
-                  campus need into a functional digital platform for our student
-                  organization. This was a fantastic experience in applying our
-                  cumulative knowledge and navigating the full development
-                  lifecycle as a team.
+                  I'm <strong>Dave Quibral Petallano</strong>, a student
+                  developer with an unwavering commitment to mastering the craft
+                  of software development. Every line of code I write is a step
+                  toward becoming the developer I aspire to be — one who builds
+                  systems that are
+                  <strong>clean, purposeful, and impactful</strong>.<br /><br />
+                  What drives me isn't just the technology — it's the relentless
+                  pursuit of growth. I embrace every challenge, every bug, and
+                  every late night as an opportunity to sharpen my skills and
+                  deepen my understanding. I believe that
+                  <strong>great developers aren't born — they're forged</strong>
+                  through persistence, curiosity, and an honest love for
+                  problem-solving.<br /><br />
+                  My goal is simple: to never stop learning, to write code that
+                  matters, and to one day build solutions that make a real
+                  difference in people's lives.
                 </p>
               </div>
             </div>
@@ -253,28 +334,45 @@
                 <span class="glass-panel__header-dot"></span>
                 <span class="glass-panel__header-dot"></span>
                 <span class="glass-panel__header-dot"></span>
-                <span class="glass-panel__header-title">principles.config</span>
+                <span class="glass-panel__header-title">lifecycle.js</span>
               </div>
               <div class="glass-panel__body">
                 <p class="about__philosophy">
-                  <span class="code-keyword">const</span>
-                  <span class="code-variable"> principles</span>
+                  <span class="code-keyword">for</span>
+                  <span class="code-bracket"> (</span
+                  ><span class="code-keyword">let</span>
+                  <span class="code-variable"> day</span>
                   <span class="code-operator"> = </span>
-                  <span class="code-bracket">{</span><br />
-                  <span class="code-indent">teamwork:</span>
-                  <span class="code-string">
-                    "Collaboration leads to better solutions"</span
-                  >,<br />
-                  <span class="code-indent">code:</span>
-                  <span class="code-string">
-                    "Clarity and readability are key"</span
-                  >
-                  ,<br />
-                  <span class="code-indent">learning:</span>
-                  <span class="code-string">
-                    "Every project is a chance to grow."</span
-                  ><br />
-                  <span class="code-bracket">}</span>;
+                  <span class="code-string">1</span
+                  ><span class="code-operator">; </span>
+                  <span class="code-variable">isAlive</span
+                  ><span class="code-operator">; </span>
+                  <span class="code-variable">day</span
+                  ><span class="code-operator">++</span
+                  ><span class="code-bracket">) {</span><br />
+                  <span class="code-indent">code</span
+                  ><span class="code-bracket">()</span
+                  ><span class="code-operator">;</span><br />
+                  <span class="code-indent">debug</span
+                  ><span class="code-bracket">()</span
+                  ><span class="code-operator">;</span><br />
+                  <span class="code-indent">learn</span
+                  ><span class="code-bracket">()</span
+                  ><span class="code-operator">;</span><br />
+                  <span class="code-indent">sleep</span
+                  ><span class="code-bracket">()</span
+                  ><span class="code-operator">;</span><br />
+                  <span class="code-indent">coffee</span
+                  ><span class="code-operator">.</span
+                  ><span class="code-variable">sip</span
+                  ><span class="code-bracket">()</span
+                  ><span class="code-operator">;</span><br />
+                  <span class="code-indent">grass</span
+                  ><span class="code-operator">.</span
+                  ><span class="code-variable">touch</span
+                  ><span class="code-bracket">()</span
+                  ><span class="code-operator">;</span><br />
+                  <span class="code-bracket">}</span>
                 </p>
               </div>
             </div>

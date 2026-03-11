@@ -466,6 +466,268 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════
+   BOOT SCREEN — System Startup Sequence
+   ═══════════════════════════════════════════ */
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.8s ease,
+    visibility 0.8s ease;
+}
+
+.boot-screen--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.boot-screen__content {
+  max-width: 700px;
+  width: 90%;
+  font-family: var(--font-mono);
+  font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.8;
+  position: relative;
+}
+
+/* ── Boot Text Lines ── */
+.boot-line {
+  opacity: 0;
+  transform: translateY(4px);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.boot-line--visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.boot-line--system {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.boot-line--ok {
+  color: rgba(80, 255, 80, 0.6);
+}
+
+.boot-line--warn {
+  color: rgba(255, 200, 50, 0.6);
+}
+
+.boot-line--error {
+  color: rgba(255, 80, 80, 0.5);
+}
+
+.boot-line--header {
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.boot-line--name {
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-weight: 900;
+  font-family: var(--font-sans);
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 12px 0 4px;
+  white-space: normal;
+  text-shadow:
+    0 0 20px rgba(255, 255, 255, 0.3),
+    0 0 60px rgba(255, 255, 255, 0.1);
+}
+
+.boot-line--name-sub {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 900;
+  font-family: var(--font-sans);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  white-space: normal;
+}
+
+.boot-line--title {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: clamp(0.65rem, 1.2vw, 0.78rem);
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.boot-line--progress {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.boot-line--complete {
+  color: rgba(80, 255, 80, 0.7);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Blinking cursor ── */
+.boot-screen__cursor {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.6);
+  animation: bootCursorBlink 0.6s step-end infinite;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+@keyframes bootCursorBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── Scanlines overlay ── */
+.boot-screen__scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  z-index: 1;
+}
+
+/* ── Vignette ── */
+.boot-screen__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  z-index: 2;
+}
+
+/* ── Glitch flash during boot ── */
+.boot-screen--glitch {
+  animation: bootGlitch 0.15s steps(2) 1;
+}
+
+@keyframes bootGlitch {
+  0% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+  25% {
+    transform: translate(-3px, 1px);
+    filter: hue-rotate(90deg) brightness(1.5);
+  }
+  50% {
+    transform: translate(2px, -2px);
+    filter: brightness(2) contrast(1.3);
+  }
+  75% {
+    transform: translate(-1px, 2px);
+    filter: hue-rotate(-90deg) brightness(0.8);
+  }
+  100% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+}
+
+/* ── Character-by-character reveal for name ── */
+.boot-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.08s ease,
+    transform 0.08s ease;
+}
+
+.boot-char--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.boot-char--space {
+  width: 0.3em;
+}
+
+/* ── Progress bar inside boot ── */
+.boot-progress {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+
+.boot-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.6)
+  );
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+/* ── Screen flicker on completion ── */
+@keyframes bootComplete {
+  0% {
+    opacity: 1;
+  }
+  10% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  30% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.boot-screen--complete {
+  animation: bootComplete 0.8s ease forwards;
+}
+
+/* ═══════════════════════════════════════════
    HERO SECTION
    ═══════════════════════════════════════════ */
 .hero {
@@ -513,15 +775,367 @@ body::after {
   margin-bottom: 16px;
 }
 
+/* ═══════════════════════════════════════════
+   HERO NAME — Glitch Hover System
+   ═══════════════════════════════════════════ */
+
+/* ── First Name ── */
 .hero__name-first {
   display: block;
   color: var(--color-text-primary);
+  position: relative;
+  cursor: default;
+  transition: text-shadow 0.3s ease;
 }
 
+/* ── Last Name ── */
 .hero__name-last {
   display: block;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--color-text-secondary);
+  position: relative;
+  cursor: default;
+  transition: -webkit-text-stroke-color 0.3s ease;
+}
+
+/* ═══════════════════════════════════
+   GLITCH LAYERS (::before & ::after)
+   ═══════════════════════════════════ */
+
+/* Both names share these pseudo-element styles */
+.hero__name-first::before,
+.hero__name-first::after,
+.hero__name-last::before,
+.hero__name-last::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+/* ── FIRST NAME — Glitch Layers ── */
+
+/* Layer 1: Shifts LEFT with clip slicing */
+.hero__name-first::before {
+  color: var(--color-text-primary);
+  text-shadow:
+    -2px 0 rgba(255, 255, 255, 0.7),
+    2px 0 rgba(255, 255, 255, 0.3);
+  z-index: 1;
+}
+
+/* Layer 2: Shifts RIGHT with different clip */
+.hero__name-first::after {
+  color: var(--color-text-primary);
+  text-shadow:
+    2px 0 rgba(255, 255, 255, 0.5),
+    -3px 0 rgba(200, 200, 200, 0.3);
+  z-index: 2;
+}
+
+/* ── LAST NAME — Glitch Layers ── */
+
+/* Layer 1 */
+.hero__name-last::before {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-text-secondary);
+  text-shadow: none;
+  filter: drop-shadow(-2px 0 rgba(255, 255, 255, 0.15));
+  z-index: 1;
+}
+
+/* Layer 2 */
+.hero__name-last::after {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-text-secondary);
+  text-shadow: none;
+  filter: drop-shadow(2px 0 rgba(255, 255, 255, 0.1));
+  z-index: 2;
+}
+
+/* ═══════════════════════════════════
+   HOVER STATE — Activate Glitch
+   ═══════════════════════════════════ */
+
+/* Show glitch layers on hover */
+.hero__name-first:hover::before,
+.hero__name-first:hover::after,
+.hero__name-last:hover::before,
+.hero__name-last:hover::after {
+  opacity: 1;
+}
+
+/* ── First Name Hover ── */
+.hero__name-first:hover {
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 40px rgba(255, 255, 255, 0.05);
+  animation: glitchTextBase 4s steps(2) infinite;
+}
+
+.hero__name-first:hover::before {
+  animation:
+    glitchLayer1 0.3s steps(2) infinite,
+    glitchClip1 2s steps(8) infinite;
+}
+
+.hero__name-first:hover::after {
+  animation:
+    glitchLayer2 0.35s steps(2) infinite,
+    glitchClip2 2.5s steps(6) infinite;
+}
+
+/* ── Last Name Hover ── */
+.hero__name-last:hover {
+  -webkit-text-stroke-color: var(--color-text-primary);
+  animation: glitchTextBase 4s steps(2) infinite;
+}
+
+.hero__name-last:hover::before {
+  animation:
+    glitchLayer1Outline 0.3s steps(2) infinite,
+    glitchClip1 2s steps(8) infinite;
+}
+
+.hero__name-last:hover::after {
+  animation:
+    glitchLayer2Outline 0.35s steps(2) infinite,
+    glitchClip2 2.5s steps(6) infinite;
+}
+
+/* ═══════════════════════════════════
+   GLITCH KEYFRAMES
+   ═══════════════════════════════════ */
+
+/* ── Base text jitter ── */
+@keyframes glitchTextBase {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  2% {
+    transform: translate(-2px, 1px);
+  }
+  4% {
+    transform: translate(2px, -1px);
+  }
+  6% {
+    transform: translate(0);
+  }
+  50% {
+    transform: translate(0);
+  }
+  52% {
+    transform: translate(1px, -2px);
+  }
+  54% {
+    transform: translate(-1px, 1px);
+  }
+  56% {
+    transform: translate(0);
+  }
+}
+
+/* ── Layer 1: Left-shift glitch ── */
+@keyframes glitchLayer1 {
+  0% {
+    transform: translate(-3px, -1px);
+  }
+  25% {
+    transform: translate(3px, 1px);
+  }
+  50% {
+    transform: translate(-1px, 2px);
+  }
+  75% {
+    transform: translate(2px, -1px);
+  }
+  100% {
+    transform: translate(-2px, 0);
+  }
+}
+
+/* ── Layer 2: Right-shift glitch ── */
+@keyframes glitchLayer2 {
+  0% {
+    transform: translate(2px, 1px);
+  }
+  25% {
+    transform: translate(-3px, -2px);
+  }
+  50% {
+    transform: translate(1px, -1px);
+  }
+  75% {
+    transform: translate(-2px, 2px);
+  }
+  100% {
+    transform: translate(3px, -1px);
+  }
+}
+
+/* ── Outline-specific glitch (for last name) ── */
+@keyframes glitchLayer1Outline {
+  0% {
+    transform: translate(-4px, -1px) skewX(-2deg);
+  }
+  25% {
+    transform: translate(3px, 1px) skewX(1deg);
+  }
+  50% {
+    transform: translate(-2px, 2px) skewX(-1deg);
+  }
+  75% {
+    transform: translate(4px, -1px) skewX(2deg);
+  }
+  100% {
+    transform: translate(-3px, 0) skewX(0deg);
+  }
+}
+
+@keyframes glitchLayer2Outline {
+  0% {
+    transform: translate(3px, 1px) skewX(1deg);
+  }
+  25% {
+    transform: translate(-4px, -2px) skewX(-2deg);
+  }
+  50% {
+    transform: translate(2px, -1px) skewX(1.5deg);
+  }
+  75% {
+    transform: translate(-3px, 2px) skewX(-1deg);
+  }
+  100% {
+    transform: translate(4px, -1px) skewX(0deg);
+  }
+}
+
+/* ── Clip-path slicing — reveals random horizontal strips ── */
+@keyframes glitchClip1 {
+  0% {
+    clip-path: polygon(0 0%, 100% 0%, 100% 10%, 0 10%);
+  }
+  10% {
+    clip-path: polygon(0 15%, 100% 15%, 100% 30%, 0 30%);
+  }
+  20% {
+    clip-path: polygon(0 45%, 100% 45%, 100% 55%, 0 55%);
+  }
+  30% {
+    clip-path: polygon(0 70%, 100% 70%, 100% 80%, 0 80%);
+  }
+  40% {
+    clip-path: polygon(0 5%, 100% 5%, 100% 20%, 0 20%);
+  }
+  50% {
+    clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%);
+  }
+  60% {
+    clip-path: polygon(0 30%, 100% 30%, 100% 45%, 0 45%);
+  }
+  70% {
+    clip-path: polygon(0 85%, 100% 85%, 100% 100%, 0 100%);
+  }
+  80% {
+    clip-path: polygon(0 10%, 100% 10%, 100% 25%, 0 25%);
+  }
+  90% {
+    clip-path: polygon(0 50%, 100% 50%, 100% 65%, 0 65%);
+  }
+  100% {
+    clip-path: polygon(0 0%, 100% 0%, 100% 15%, 0 15%);
+  }
+}
+
+@keyframes glitchClip2 {
+  0% {
+    clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%);
+  }
+  12% {
+    clip-path: polygon(0 20%, 100% 20%, 100% 35%, 0 35%);
+  }
+  24% {
+    clip-path: polygon(0 75%, 100% 75%, 100% 90%, 0 90%);
+  }
+  36% {
+    clip-path: polygon(0 0%, 100% 0%, 100% 12%, 0 12%);
+  }
+  48% {
+    clip-path: polygon(0 40%, 100% 40%, 100% 52%, 0 52%);
+  }
+  60% {
+    clip-path: polygon(0 85%, 100% 85%, 100% 100%, 0 100%);
+  }
+  72% {
+    clip-path: polygon(0 25%, 100% 25%, 100% 38%, 0 38%);
+  }
+  84% {
+    clip-path: polygon(0 60%, 100% 60%, 100% 72%, 0 72%);
+  }
+  100% {
+    clip-path: polygon(0 10%, 100% 10%, 100% 22%, 0 22%);
+  }
+}
+
+/* ═══════════════════════════════════
+   GLITCH FLASH LINES — On Name Hover
+   ═══════════════════════════════════ */
+.hero__name-first:hover,
+.hero__name-last:hover {
+  position: relative;
+}
+
+/* Horizontal white flash lines during hover */
+.hero__name-first:hover ~ .hero__name-glitch-lines,
+.hero__name:hover .hero__name-glitch-lines {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════
+   EXTRA: Periodic idle micro-glitch
+   (happens even without hover)
+   ═══════════════════════════════════ */
+.hero__name-first {
+  animation: nameIdleGlitch 12s ease-in-out infinite;
+}
+
+.hero__name-last {
+  animation: nameIdleGlitch 12s ease-in-out infinite 1s;
+}
+
+@keyframes nameIdleGlitch {
+  0%,
+  92%,
+  100% {
+    transform: translate(0) skewX(0deg);
+    filter: none;
+  }
+  93% {
+    transform: translate(-3px, 0) skewX(-0.5deg);
+    filter: brightness(1.3);
+  }
+  94% {
+    transform: translate(4px, 0) skewX(0.8deg);
+    filter: brightness(0.8);
+  }
+  95% {
+    transform: translate(-2px, 0) skewX(-0.3deg);
+    filter: brightness(1.5);
+  }
+  96% {
+    transform: translate(1px, 0) skewX(0.2deg);
+    filter: brightness(1);
+  }
+  97% {
+    transform: translate(0) skewX(0deg);
+    filter: none;
+  }
 }
 
 .hero__separator {
@@ -736,25 +1350,668 @@ body::after {
   position: relative;
   border-radius: 8px;
   overflow: hidden;
+  background: var(--color-bg);
 }
 
+/* ── Photo — Natural Size, No Crop ── */
 .about__photo {
   width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
+  height: auto;
+  display: block;
+  object-fit: contain;
   filter: grayscale(100%) contrast(1.1);
-  transition: filter var(--transition-medium);
+  transition: filter 0.6s var(--ease-out-expo);
 }
 
 .about__photo-frame:hover .about__photo {
-  filter: grayscale(70%) contrast(1.05);
+  filter: grayscale(30%) contrast(1.05) brightness(1.05);
 }
 
 .about__photo-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 60%, rgba(5, 5, 5, 0.6));
+  background: linear-gradient(180deg, transparent 50%, rgba(5, 5, 5, 0.5));
   pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════
+   GLITCH SYSTEM — X O Eyes + B&W Redaction
+   ═══════════════════════════════════════════ */
+
+/* ── Container — Covers the eye region ── */
+.glitch-system {
+  position: absolute;
+  top: 22%;
+  left: -6%;
+  right: -6%;
+  height: 18%;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  /* Smooth hide on hover */
+  transition:
+    opacity 0.5s var(--ease-out-expo),
+    transform 0.5s var(--ease-out-expo),
+    filter 0.5s var(--ease-out-expo);
+  /* Continuous subtle jitter */
+  animation: glitchSystemPulse 8s ease-in-out infinite;
+}
+
+/* ── HIDE ON HOVER (all three targets for safety) ── */
+.about__photo-inner:hover .glitch-system,
+.about__photo-frame:hover .glitch-system {
+  animation: none !important;
+  opacity: 0 !important;
+  transform: translateX(150%) skewX(-25deg) scaleY(0.3) !important;
+  filter: blur(8px) !important;
+}
+
+/* ── System Pulse — Whole container jitters ── */
+@keyframes glitchSystemPulse {
+  0%,
+  84%,
+  100% {
+    transform: translateX(0) skewX(0deg);
+  }
+  85% {
+    transform: translateX(-8px) skewX(-2deg);
+  }
+  86% {
+    transform: translateX(12px) skewX(3deg);
+  }
+  87% {
+    transform: translateX(-4px) skewX(-1deg);
+  }
+  88% {
+    transform: translateX(6px) skewX(1.5deg);
+  }
+  89% {
+    transform: translateX(-2px) skewX(0deg);
+  }
+  90% {
+    transform: translateX(0) skewX(0deg);
+  }
+}
+
+/* ═══════════════════════════════════
+   BLACK BAR — Main censorship strip
+   ═══════════════════════════════════ */
+.glitch-bar {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Individual Slices ── */
+.glitch-bar__slice {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Alternating black/dark bands */
+.glitch-bar__slice:nth-child(odd) {
+  background: rgba(0, 0, 0, 0.88);
+}
+
+.glitch-bar__slice:nth-child(even) {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* White edge line on each slice */
+.glitch-bar__slice::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Glitch shimmer sweep */
+.glitch-bar__slice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 100%
+  );
+  animation: shimmerSweep 4s ease-in-out infinite;
+}
+
+/* Staggered jitter per slice */
+.glitch-bar__slice:nth-child(1) {
+  animation: sliceJitter1 5s ease-in-out infinite;
+}
+.glitch-bar__slice:nth-child(2) {
+  animation: sliceJitter2 4s ease-in-out infinite 0.15s;
+}
+.glitch-bar__slice:nth-child(3) {
+  animation: sliceJitter3 6s ease-in-out infinite 0.3s;
+}
+.glitch-bar__slice:nth-child(4) {
+  animation: sliceJitter1 4.5s ease-in-out infinite 0.1s;
+}
+.glitch-bar__slice:nth-child(5) {
+  animation: sliceJitter2 5.5s ease-in-out infinite 0.25s;
+}
+.glitch-bar__slice:nth-child(6) {
+  animation: sliceJitter3 3.8s ease-in-out infinite 0.4s;
+}
+.glitch-bar__slice:nth-child(7) {
+  animation: sliceJitter1 4.2s ease-in-out infinite 0.05s;
+}
+
+@keyframes sliceJitter1 {
+  0%,
+  82%,
+  100% {
+    transform: translateX(0);
+  }
+  83% {
+    transform: translateX(-12px);
+  }
+  85% {
+    transform: translateX(16px);
+  }
+  87% {
+    transform: translateX(-6px);
+  }
+  89% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sliceJitter2 {
+  0%,
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+  79% {
+    transform: translateX(14px);
+  }
+  81% {
+    transform: translateX(-18px);
+  }
+  83% {
+    transform: translateX(8px);
+  }
+  85% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sliceJitter3 {
+  0%,
+  88%,
+  100% {
+    transform: translateX(0);
+  }
+  89% {
+    transform: translateX(-10px);
+  }
+  90% {
+    transform: translateX(8px);
+  }
+  91% {
+    transform: translateX(-4px);
+  }
+  92% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-200%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* ── CRT Scanlines inside bar ── */
+.glitch-bar__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(255, 255, 255, 0.02) 1px,
+    rgba(255, 255, 255, 0.02) 2px
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Digital Noise ── */
+.glitch-bar__noise {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+  animation: noiseShift 0.12s steps(4) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+}
+
+@keyframes noiseShift {
+  0% {
+    background-position: 0 0;
+  }
+  25% {
+    background-position: -40px -20px;
+  }
+  50% {
+    background-position: 20px -40px;
+  }
+  75% {
+    background-position: -20px 30px;
+  }
+  100% {
+    background-position: 40px 10px;
+  }
+}
+
+/* ═══════════════════════════════════
+   X O EYE SYMBOLS
+   ═══════════════════════════════════ */
+.glitch-eyes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13%;
+  z-index: 10;
+  transform: translateX(20px); /* ← exact pixel shift right */
+}
+
+.glitch-eye {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Individual Symbols ── */
+.glitch-eye__symbol {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  color: white;
+}
+
+.glitch-eye__symbol--x {
+  font-size: 4.8rem;
+  opacity: 0;
+  animation: eyeXFlash 5s step-end infinite;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.4),
+    0 0 40px rgba(255, 255, 255, 0.2);
+  filter: blur(1.3px);
+}
+
+.glitch-eye__symbol--o {
+  font-size: 3.5rem;
+  opacity: 0;
+  animation: eyeOFlash 5s step-end infinite;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.4),
+    0 0 40px rgba(255, 255, 255, 0.2);
+  filter: blur(1.3px);
+}
+
+/* ── LEFT EYE: X first, then O ── */
+.glitch-eye--left .glitch-eye__symbol--x {
+  animation: eyeXFlash 5s step-end infinite;
+}
+.glitch-eye--left .glitch-eye__symbol--o {
+  animation: eyeOFlash 5s step-end infinite;
+}
+
+/* ── RIGHT EYE: O first, then X (opposite) ── */
+.glitch-eye--right .glitch-eye__symbol--o {
+  animation: eyeXFlash 5s step-end infinite;
+}
+.glitch-eye--right .glitch-eye__symbol--x {
+  animation: eyeOFlash 5s step-end infinite;
+}
+
+/* ── X flashes during glitch burst ── */
+@keyframes eyeXFlash {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  /* First burst */
+  82% {
+    opacity: 0;
+  }
+  83% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  84% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  85% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  86% {
+    opacity: 0;
+  }
+  /* Second burst */
+  90% {
+    opacity: 0;
+  }
+  91% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  92% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  93% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+  94% {
+    opacity: 0;
+  }
+}
+
+/* ── O flashes alternate with X ── */
+@keyframes eyeOFlash {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  /* First burst — O shows when X hides */
+  84% {
+    opacity: 0;
+  }
+  84.5% {
+    opacity: 0.9;
+    transform: scale(1.15);
+  }
+  85% {
+    opacity: 0.2;
+    transform: scale(0.95);
+  }
+  85.5% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  86% {
+    opacity: 0;
+  }
+  /* Second burst */
+  92% {
+    opacity: 0;
+  }
+  92.5% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  93% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  93.5% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+  94% {
+    opacity: 0;
+  }
+}
+
+/* ── Glow behind symbols ── */
+.glitch-eye__glow {
+  position: absolute;
+  width: 50px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  animation: eyeGlow 5s ease-in-out infinite;
+}
+
+@keyframes eyeGlow {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  83% {
+    opacity: 0;
+  }
+  84% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  86% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  88% {
+    opacity: 0;
+  }
+  91% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0.8;
+    transform: scale(1.3);
+  }
+  94% {
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════
+   REDACTED LABEL
+   ═══════════════════════════════════ */
+.glitch-label {
+  position: absolute;
+  bottom: 4px;
+  right: 8%;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.glitch-label__text {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  animation: labelFlicker 6s step-end infinite;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+}
+
+.glitch-label__sub {
+  font-family: var(--font-mono);
+  font-size: 0.45rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+  animation: labelFlicker 6s step-end infinite 0.5s;
+}
+
+@keyframes labelFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  3% {
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.7;
+  }
+  5% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  51% {
+    opacity: 0.2;
+  }
+  52% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  86% {
+    opacity: 0;
+  }
+  87% {
+    opacity: 0.5;
+  }
+  88% {
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════
+   FLASH LINES — Horizontal burst
+   ═══════════════════════════════════ */
+.glitch-flash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: white;
+  opacity: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.glitch-flash--1 {
+  top: 20%;
+  animation: flashLine 5s step-end infinite;
+}
+
+.glitch-flash--2 {
+  top: 55%;
+  animation: flashLine 5s step-end infinite 0.15s;
+}
+
+.glitch-flash--3 {
+  top: 80%;
+  animation: flashLine 5s step-end infinite 0.3s;
+}
+
+@keyframes flashLine {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  83% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  83.5% {
+    opacity: 0.8;
+    transform: scaleX(1.1);
+  }
+  84% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  84.5% {
+    opacity: 0.5;
+    transform: scaleX(0.8);
+  }
+  85% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  91% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  91.5% {
+    opacity: 0.6;
+    transform: scaleX(1);
+  }
+  92% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+}
+
+/* ═══════════════════════════════════
+   EDGE BORDERS
+   ═══════════════════════════════════ */
+.glitch-border {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 12;
+}
+
+.glitch-border--top {
+  top: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 80%,
+    transparent 95%
+  );
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.glitch-border--bottom {
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.15) 80%,
+    transparent 95%
+  );
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
 .about__photo-scanline {
@@ -1501,6 +2758,14 @@ body::after {
     0 0 40px rgba(255, 255, 255, 0.03);
 }
 
+/* ── Also hide glitch when hovering the whole frame ── */
+.about__photo-frame:hover .glitch-system {
+  animation: none !important;
+  opacity: 0 !important;
+  transform: translateX(150%) skewX(-25deg) scaleY(0.3) !important;
+  filter: blur(8px) !important;
+}
+
 /* ── Contact Social Links — Pop Up ── */
 .contact__social-link {
   transition:
@@ -1704,8 +2969,8 @@ button:focus:not(:focus-visible) {
 }
 
 .affiliation-logo {
-  height: 60px; /* Or adjust to your preference */
-  width: 60px;
+  height: 80px; /* Or adjust to your preference */
+  width: 80px;
   object-fit: contain; /* Prevents stretching */
   filter: grayscale(1) brightness(1.5); /* Makes them monochrome and bright */
   transition: filter 0.3s ease;
@@ -1713,4 +2978,37 @@ button:focus:not(:focus-visible) {
 
 .affiliation-logo:hover {
   filter: grayscale(0); /* On hover, show original colors */
+}
+
+/* Ensure the desktop mouse and mobile touch switch correctly */
+.hero__scroll-indicator--desktop {
+  display: flex;
+}
+.hero__scroll-indicator--mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hero__scroll-indicator--desktop {
+    display: none;
+  }
+  .hero__scroll-indicator--mobile {
+    display: flex;
+    font-size: 1.8rem;
+    color: var(--color-text-muted);
+    animation: tapBounce 1.5s ease-in-out infinite;
+  }
+}
+
+/* Bounce animation for the mobile hand */
+@keyframes tapBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
 }
