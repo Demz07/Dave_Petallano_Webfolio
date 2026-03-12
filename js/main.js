@@ -91,7 +91,7 @@
       },
       { text: "", cls: "boot-line--system", delay: 200 },
       {
-        text: "ROLE: Aspiring .NET & Web Developer",
+        text: "ROLE: Aspiring Web and Game Developer",
         cls: "boot-line--title",
         delay: 150,
       },
@@ -276,16 +276,8 @@
         return;
       }
 
-      // Check if already booted this session
-      if (sessionStorage.getItem("portfolio-booted")) {
-        screen.classList.add("boot-screen--hidden");
-        return;
-      }
-
       // Run the boot
-      runBoot().then(() => {
-        sessionStorage.setItem("portfolio-booted", "true");
-      });
+      runBoot();
     }
 
     return { init };
@@ -989,74 +981,101 @@
   })();
 
   // ─────────────────────────────────────────
-  // 6. CONTACT FORM (AJAX to PHP)
+  // 6. CONTACT FORM (Web3Forms)
   // ─────────────────────────────────────────
   const ContactForm = (() => {
     const form = document.getElementById("contactForm");
     const submitBtn = document.getElementById("submitBtn");
     const successMsg = document.getElementById("formSuccess");
     const errorMsg = document.getElementById("formError");
+    const errorText = document.getElementById("formErrorText");
 
     if (!form) return { init: () => {} };
 
     async function handleSubmit(e) {
       e.preventDefault();
 
+      // Hide previous messages
       if (successMsg) successMsg.hidden = true;
       if (errorMsg) errorMsg.hidden = true;
 
+      // Add loading state
+      form.classList.add("contact__form--submitting");
       submitBtn.classList.add("contact__submit-btn--loading");
       submitBtn.disabled = true;
 
       const formData = new FormData(form);
 
+      // Convert to JSON for Web3Forms
+      const data = Object.fromEntries(formData);
+
       try {
-        const response = await fetch(form.action, {
+        const response = await fetch("https://api.web3forms.com/submit", {
           method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(data),
         });
+
         const result = await response.json();
+
         if (result.success) {
-          if (successMsg) successMsg.hidden = false;
+          // Success
+          if (successMsg) {
+            successMsg.hidden = false;
+            successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
           form.reset();
+
+          // Auto-hide after 10 seconds
+          setTimeout(() => {
+            if (successMsg) successMsg.hidden = true;
+          }, 10000);
         } else {
-          if (errorMsg) errorMsg.hidden = false;
+          // Error
+          throw new Error(result.message || "Submission failed");
         }
-      } catch (err) {
-        console.error("Form submission error:", err);
-        if (errorMsg) errorMsg.hidden = false;
+      } catch (error) {
+        console.error("Form error:", error);
+        if (errorMsg) {
+          errorMsg.hidden = false;
+          if (errorText) {
+            errorText.textContent =
+              error.message || "Failed to send. Please try again.";
+          }
+          errorMsg.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
       } finally {
+        // Remove loading state
+        form.classList.remove("contact__form--submitting");
         submitBtn.classList.remove("contact__submit-btn--loading");
         submitBtn.disabled = false;
       }
     }
 
-    function init() {
-      form.addEventListener("submit", handleSubmit);
-    }
+    // Validation feedback
+    function setupValidation() {
+      const inputs = form.querySelectorAll(".form-input");
 
-    return { init };
-  })();
+      inputs.forEach((input) => {
+        input.addEventListener("invalid", (e) => {
+          e.preventDefault();
+          input.classList.add("form-input--invalid");
+        });
 
-  // ─────────────────────────────────────────
-  // 7. SMOOTH SCROLL
-  // ─────────────────────────────────────────
-  const SmoothScroll = (() => {
-    function init() {
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener("click", function (e) {
-          const targetId = this.getAttribute("href");
-          if (targetId === "#") return;
-          const target = document.querySelector(targetId);
-          if (target) {
-            e.preventDefault();
-            const offset = 80;
-            const top =
-              target.getBoundingClientRect().top + window.scrollY - offset;
-            window.scrollTo({ top, behavior: "smooth" });
+        input.addEventListener("input", () => {
+          if (input.validity.valid) {
+            input.classList.remove("form-input--invalid");
           }
         });
       });
+    }
+
+    function init() {
+      form.addEventListener("submit", handleSubmit);
+      setupValidation();
     }
 
     return { init };
@@ -1410,21 +1429,32 @@
       const data = logoData[logoKey];
       if (!data) return;
 
-      // Lock body scroll
+      // ★ Show close button IMMEDIATELY (never trap the user)
+      closeBtn.classList.add("logo-modal__close--visible");
+
+      // ★ Use robust scroll lock (same pattern as Navigation)
+      scrollYBeforeOpen = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollYBeforeOpen}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
       document.body.style.overflow = "hidden";
 
-      // Show modal with glitch entrance
       modal.classList.add("logo-modal--active", "logo-modal--entering");
       modal.setAttribute("aria-hidden", "false");
 
-      // Remove entering class after animation
       setTimeout(() => {
         modal.classList.remove("logo-modal--entering");
       }, 500);
 
-      // Run the terminal animation
-      runAnimation(data);
+      // ★ Catch animation errors so scroll never stays locked
+      runAnimation(data).catch((err) => {
+        console.error("[LogoModal] Animation error:", err);
+        isAnimating = false;
+      });
     }
+
+    let scrollYBeforeOpen = 0;
 
     function closeModal() {
       clearAllTimeouts();
@@ -1433,10 +1463,15 @@
       modal.classList.remove("logo-modal--active");
       modal.setAttribute("aria-hidden", "true");
 
-      // Unlock body scroll
+      // ★ Robust scroll unlock
+      const scrollY = scrollYBeforeOpen;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
       document.body.style.overflow = "";
+      window.scrollTo(0, scrollY);
 
-      // Reset after transition
       setTimeout(() => {
         cmdEl.classList.remove("logo-modal__prompt-cmd--typing");
         cmdEl.style.width = "0";
@@ -2661,6 +2696,30 @@
           if (e.key === "2") showGame("pong");
           if (e.key === "3") showGame("memory");
         }
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
+  // 7. SMOOTH SCROLL
+  // ─────────────────────────────────────────
+  const SmoothScroll = (() => {
+    function init() {
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          const targetId = this.getAttribute("href");
+          if (targetId === "#") return;
+          const target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            const offset = 80;
+            const top =
+              target.getBoundingClientRect().top + window.scrollY - offset;
+            window.scrollTo({ top, behavior: "smooth" });
+          }
+        });
       });
     }
 

@@ -27,12 +27,5 @@
 # ─── Block Directory Browsing ───
 Options -Indexes
 
-# ─── Block access to PHP files in assets ───
-<FilesMatch "\.php$">
-    <If "%{REQUEST_URI} =~ m#^/assets/#">
-        Require all denied
-    </If>
-</FilesMatch>
-
 # ─── Custom Error Page ───
 ErrorDocument 404 /index.html
