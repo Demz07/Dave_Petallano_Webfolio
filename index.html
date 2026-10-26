@@ -192,6 +192,7 @@
   
   <span class="hero__scroll-text">SCROLL TO EXPLORE</span>
 </div>
+      </div>
     </section>
 
     <!-- ═══════════════════════════════════════════
@@ -415,14 +416,243 @@
           <p class="section__subtitle">// Declassified Project Files</p>
         </header>
 
+        <!-- ── Category Filter / Archive Index ── -->
+        <div class="projects__toolbar reveal">
+          <div
+            class="projects__filters"
+            role="group"
+            aria-label="Filter projects by category"
+          >
+            <button
+              type="button"
+              class="filter-btn is-active"
+              data-filter="all"
+              aria-pressed="true"
+            >
+              All Files<span class="filter-btn__count">08</span>
+            </button>
+            <button
+              type="button"
+              class="filter-btn"
+              data-filter="games"
+              aria-pressed="false"
+            >
+              Games<span class="filter-btn__count">04</span>
+            </button>
+            <button
+              type="button"
+              class="filter-btn"
+              data-filter="solutions"
+              aria-pressed="false"
+            >
+              Solutions<span class="filter-btn__count">03</span>
+            </button>
+            <button
+              type="button"
+              class="filter-btn"
+              data-filter="educational"
+              aria-pressed="false"
+            >
+              Educational<span class="filter-btn__count">01</span>
+            </button>
+          </div>
+
+          <p class="projects__count" aria-live="polite">
+            <span id="projectsCount">08</span> FILES DECLASSIFIED
+          </p>
+        </div>
+
         <div class="projects__grid">
-          <!-- iBITS Portal PROJECT CARD -->
-          <article class="project-card glass-panel reveal" tabindex="0">
+          <!-- ── DEAD SECTOR ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="games"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--dev"
+              ></span>
+              PLAYABLE PROTOTYPE
+              <span class="project-card__category">GAME</span>
+            </div>
+            <h3 class="project-card__title">Dead Sector</h3>
+            <p class="project-card__description">
+              A side-scrolling pixel zombie shooter packed into a single
+              self-contained HTML file. Six unlockable gunners, eight undead
+              breeds, and twenty sectors with named bosses — fully playable
+              offline as an installable PWA.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">HTML5 Canvas</span>
+              <span class="tech-tag">Vanilla JS</span>
+              <span class="tech-tag">Web Audio</span>
+              <span class="tech-tag">PWA</span>
+              <span class="tech-tag">Python / Pillow</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://demz07.github.io/dead-sector/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Play Now
+              </a>
+              <a
+                href="https://github.com/Demz07/dead-sector"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
+
+          <!-- ── HARIBON ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="games"
+            tabindex="0"
+          >
             <div class="project-card__status">
               <span
                 class="project-card__status-dot project-card__status-dot--live"
               ></span>
               OPERATIONAL
+              <span class="project-card__category">GAME</span>
+            </div>
+            <h3 class="project-card__title">HARIBON</h3>
+            <p class="project-card__description">
+              A one-button arcade flapper starring the Philippine eagle. Tap,
+              click, or press space to thread the gaps, chase a new personal
+              best, and jump straight back in — installable and playable even
+              with the network switched off.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">HTML5 Canvas</span>
+              <span class="tech-tag">Vanilla JS</span>
+              <span class="tech-tag">Sprite Animation</span>
+              <span class="tech-tag">PWA</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://demz07.github.io/HARIBON/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Play Now
+              </a>
+              <a
+                href="https://github.com/Demz07/HARIBON"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
+
+          <!-- ── 3D DICE ROLLER ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="games"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+              <span class="project-card__category">GAME</span>
+            </div>
+            <h3 class="project-card__title">3D Dice Roller</h3>
+            <p class="project-card__description">
+              A physics-driven 3D dice roller with real d6 pips, gravity,
+              collisions, friction, bounce, soft shadows, and automatic
+              top-face detection. Orbit, pinch to zoom, or drag and release the
+              scene to throw the dice yourself.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">Three.js</span>
+              <span class="tech-tag">Cannon-es</span>
+              <span class="tech-tag">WebGL</span>
+              <span class="tech-tag">JavaScript</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://diceroller.gt.tc/?i=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Play Now
+              </a>
+            </div>
+          </article>
+
+          <!-- ── SPACE BLOCKS ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="games"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+              <span class="project-card__category">GAME</span>
+            </div>
+            <h3 class="project-card__title">Space Blocks</h3>
+            <p class="project-card__description">
+              A cosmic block-stacking puzzler with Classic, Endless, and
+              Adventure stage modes. Drift, place, and clear lines across
+              stages with a chiptune soundtrack, saved hi-scores, and full
+              touch controls.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">HTML5 Canvas</span>
+              <span class="tech-tag">Vanilla JS</span>
+              <span class="tech-tag">Web Audio</span>
+              <span class="tech-tag">LocalStorage</span>
+              <span class="tech-tag">PWA</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://space-blocks.gt.tc/?i=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Play Now
+              </a>
+              <a
+                href="https://github.com/Demz07/space-blocks"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
+
+          <!-- ── iBITS PORTAL ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="solutions"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+              <span class="project-card__category">SOLUTION</span>
             </div>
             <h3 class="project-card__title">iBITS Portal</h3>
             <p class="project-card__description">
@@ -460,8 +690,151 @@
             </div>
           </article>
 
-          <!-- More project cards can be added here in the future -->
+          <!-- ── JEETRACK ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="solutions"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+              <span class="project-card__category">SOLUTION</span>
+            </div>
+            <h3 class="project-card__title">JeepTrack</h3>
+            <p class="project-card__description">
+              Real-time jeepney GPS tracking with dedicated driver and passenger
+              views. Drivers broadcast their live location while commuters
+              follow the route on an interactive map — built to stay light on
+              low-end phones and slow connections.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">Firebase</span>
+              <span class="tech-tag">Geolocation API</span>
+              <span class="tech-tag">HTML/CSS</span>
+              <span class="tech-tag">PWA</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://jeeptrack.infinityfree.io/?i=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Live Demo
+              </a>
+              <a
+                href="https://github.com/Demz07/jeeptrack"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
+
+          <!-- ── TAPTAPOS ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="solutions"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+              <span class="project-card__category">SOLUTION</span>
+            </div>
+            <h3 class="project-card__title">TapTapos</h3>
+            <p class="project-card__description">
+              A self-service kiosk and BYOD ordering system for Filipino local
+              businesses. Customers order at a tablet or scan a QR code on their
+              own phone, while owners manage menus, live orders, VAT-ready
+              receipts, and sales reports from one dashboard.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">TypeScript</span>
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">Express</span>
+              <span class="tech-tag">PostgreSQL</span>
+              <span class="tech-tag">Drizzle ORM</span>
+              <span class="tech-tag">Tailwind CSS</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://taptapos.gt.tc/?i=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Live Demo
+              </a>
+              <a
+                href="https://github.com/Demz07/TapTapos"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
+
+          <!-- ── SOLAR SYSTEM 3D ── -->
+          <article
+            class="project-card glass-panel reveal"
+            data-category="educational"
+            tabindex="0"
+          >
+            <div class="project-card__status">
+              <span
+                class="project-card__status-dot project-card__status-dot--live"
+              ></span>
+              OPERATIONAL
+              <span class="project-card__category">EDUCATIONAL</span>
+            </div>
+            <h3 class="project-card__title">Solar System 3D</h3>
+            <p class="project-card__description">
+              An interactive 3D solar system you can explore at your own pace.
+              Drag to rotate, scroll to zoom, and click any planet, moon, or
+              spacecraft — from the ISS and Hubble to Voyager 1 — for a closer
+              look at the journey through space.
+            </p>
+            <div class="project-card__tech">
+              <span class="tech-tag">WebGL</span>
+              <span class="tech-tag">3D Visualization</span>
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">HTML5</span>
+            </div>
+            <div class="project-card__overlay">
+              <a
+                href="https://demz07.github.io/solar-system-web/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--primary"
+              >
+                Explore
+              </a>
+              <a
+                href="https://github.com/Demz07/solar-system-web"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn--small btn--secondary"
+              >
+                GitHub Repo
+              </a>
+            </div>
+          </article>
         </div>
+
+        <p class="projects__empty" id="projectsEmpty" hidden>
+          // no files match this filter
+        </p>
       </div>
     </section>
 

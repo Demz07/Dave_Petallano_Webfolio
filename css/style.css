@@ -2234,10 +2234,123 @@ body::after {
 /* ═══════════════════════════════════════════
    PROJECTS SECTION
    ═══════════════════════════════════════════ */
+
+/* ── Category Filter / Archive Index ── */
+.projects__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+}
+
+.projects__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.filter-btn:hover {
+  color: var(--color-text-secondary);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-1px);
+}
+
+.filter-btn__count {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.filter-btn.is-active {
+  color: var(--color-text-primary);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.04);
+}
+
+.filter-btn.is-active .filter-btn__count {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--color-text-primary);
+}
+
+.projects__count {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+}
+
+.projects__count span {
+  color: var(--color-text-secondary);
+}
+
+/* ── Grid ── */
 .projects__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 28px;
+}
+
+/* ── Filtered-out state ── */
+.project-card.is-hidden {
+  display: none;
+}
+
+.project-card.is-filtered-in {
+  /* `backwards` (not `both`) so the finished animation doesn't override the
+     inline 3D tilt transform applied by the anti-gravity system */
+  animation: projectFilterIn 0.45s var(--ease-out-expo) backwards;
+}
+
+@keyframes projectFilterIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.projects__empty {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 48px 0;
 }
 
 .project-card {
@@ -2295,6 +2408,24 @@ body::after {
 
 .project-card__status-dot--archive {
   background: rgba(255, 255, 255, 0.3);
+}
+
+.project-card__category {
+  margin-left: auto;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  color: var(--color-text-muted);
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.project-card:hover .project-card__category {
+  color: var(--color-text-secondary);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .project-card__title {
@@ -3000,6 +3131,7 @@ body::after {
     padding: 8px 0 0;
     inset: unset;
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
 
@@ -3014,6 +3146,27 @@ body::after {
 
   .hero__classification-line {
     display: none;
+  }
+
+  .projects__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .projects__filters {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filter-btn {
+    justify-content: center;
+    padding: 9px 12px;
+  }
+
+  .projects__count {
+    text-align: center;
+    letter-spacing: 0.12em;
   }
 }
 
