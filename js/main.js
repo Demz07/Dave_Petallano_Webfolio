@@ -14,109 +14,201 @@
 
     if (!screen || !linesContainer) return { init: () => {} };
 
-    // ── Boot Script — Each line is {text, class, delay, special} ──
-    const bootScript = [
-      {
-        text: "BIOS v3.2.1 — POST Check",
-        cls: "boot-line--system",
-        delay: 200,
-      },
-      {
-        text: "Memory Test.......... 8192MB OK",
-        cls: "boot-line--ok",
-        delay: 150,
-      },
-      {
-        text: "CPU: Intel i7-13700K @ 5.4GHz",
-        cls: "boot-line--system",
-        delay: 120,
-      },
-      {
-        text: "GPU: Integrated Neural Display",
-        cls: "boot-line--system",
-        delay: 120,
-      },
-      { text: "Storage: 512GB NVMe SSD", cls: "boot-line--system", delay: 100 },
-      {
-        text: "Network: Ethernet 1Gbps [CONNECTED]",
-        cls: "boot-line--ok",
-        delay: 130,
-      },
-      { text: "", cls: "boot-line--system", delay: 80 },
-      {
-        text: "═══════════════════════════════════════",
-        cls: "boot-line--header",
-        delay: 100,
-      },
-      { text: "  PORTFOLIO SYSTEM v1.0", cls: "boot-line--header", delay: 100 },
-      {
-        text: "═══════════════════════════════════════",
-        cls: "boot-line--header",
-        delay: 150,
-      },
-      { text: "", cls: "boot-line--system", delay: 80 },
-      {
-        text: "Loading kernel modules...",
-        cls: "boot-line--system",
-        delay: 200,
-      },
-      { text: "[OK] particle_engine.sys", cls: "boot-line--ok", delay: 100 },
-      { text: "[OK] glass_renderer.sys", cls: "boot-line--ok", delay: 80 },
-      { text: "[OK] tilt_physics.sys", cls: "boot-line--ok", delay: 90 },
-      {
-        text: "[WARN] coffee_supply.sys — LOW",
-        cls: "boot-line--warn",
-        delay: 120,
-      },
-      { text: "[OK] glitch_shader.sys", cls: "boot-line--ok", delay: 80 },
-      { text: "", cls: "boot-line--system", delay: 100 },
-      {
-        text: "Initializing identity matrix...",
-        cls: "boot-line--system",
-        delay: 300,
-      },
-      { text: "", cls: "boot-line--system", delay: 100 },
-      { text: "SUBJECT IDENTIFIED:", cls: "boot-line--title", delay: 200 },
-      {
-        text: "Dave Quibral",
-        cls: "boot-line--name",
-        delay: 0,
-        special: "typeChars",
-      },
-      {
-        text: "Petallano",
-        cls: "boot-line--name-sub",
-        delay: 0,
-        special: "typeChars",
-      },
-      { text: "", cls: "boot-line--system", delay: 200 },
-      {
-        text: "ROLE: Aspiring Web and Game Developer",
-        cls: "boot-line--title",
-        delay: 150,
-      },
-      { text: "", cls: "boot-line--system", delay: 100 },
-      {
-        text: "progress",
-        cls: "boot-line--progress",
-        delay: 0,
-        special: "progressBar",
-      },
-      { text: "", cls: "boot-line--system", delay: 100 },
-      {
-        text: "✓ SYSTEM READY — LAUNCHING INTERFACE",
-        cls: "boot-line--complete",
-        delay: 400,
-      },
-    ];
+    // ★ Detect mobile for shorter/faster boot
+    const isMobile = window.innerWidth <= 768;
 
-    // ── Type characters one-by-one ──
+    // ★ Boot Script — Conditional: shorter on mobile, full on desktop
+    const bootScript = isMobile
+      ? [
+          // ── Condensed mobile boot (fewer lines, faster delays) ──
+          {
+            text: "BIOS v3.2.1 — POST Check",
+            cls: "boot-line--system",
+            delay: 150,
+          },
+          {
+            text: "Memory Test.......... 8192MB OK",
+            cls: "boot-line--ok",
+            delay: 100,
+          },
+          {
+            text: "CPU: Intel i7-13700K @ 5.4GHz",
+            cls: "boot-line--system",
+            delay: 80,
+          },
+          { text: "", cls: "boot-line--system", delay: 60 },
+          {
+            text: "═══════════════════════════════",
+            cls: "boot-line--header",
+            delay: 80,
+          },
+          {
+            text: "  PORTFOLIO SYSTEM v1.0",
+            cls: "boot-line--header",
+            delay: 80,
+          },
+          {
+            text: "═══════════════════════════════",
+            cls: "boot-line--header",
+            delay: 100,
+          },
+          { text: "", cls: "boot-line--system", delay: 60 },
+          { text: "Loading modules...", cls: "boot-line--system", delay: 120 },
+          { text: "[OK] particle_engine.sys", cls: "boot-line--ok", delay: 60 },
+          { text: "[OK] glass_renderer.sys", cls: "boot-line--ok", delay: 50 },
+          {
+            text: "[WARN] coffee_supply.sys — LOW",
+            cls: "boot-line--warn",
+            delay: 80,
+          },
+          { text: "", cls: "boot-line--system", delay: 60 },
+          { text: "SUBJECT IDENTIFIED:", cls: "boot-line--title", delay: 150 },
+          {
+            text: "Dave Quibral",
+            cls: "boot-line--name",
+            delay: 0,
+            special: "typeChars",
+          },
+          {
+            text: "Petallano",
+            cls: "boot-line--name-sub",
+            delay: 0,
+            special: "typeChars",
+          },
+          { text: "", cls: "boot-line--system", delay: 120 },
+          {
+            text: "ROLE: Aspiring Web and Game Developer",
+            cls: "boot-line--title",
+            delay: 100,
+          },
+          { text: "", cls: "boot-line--system", delay: 80 },
+          {
+            text: "progress",
+            cls: "boot-line--progress",
+            delay: 0,
+            special: "progressBar",
+          },
+          { text: "", cls: "boot-line--system", delay: 60 },
+          {
+            text: "✓ SYSTEM READY — LAUNCHING INTERFACE",
+            cls: "boot-line--complete",
+            delay: 300,
+          },
+        ]
+      : [
+          // ── Full desktop boot (original) ──
+          {
+            text: "BIOS v3.2.1 — POST Check",
+            cls: "boot-line--system",
+            delay: 200,
+          },
+          {
+            text: "Memory Test.......... 8192MB OK",
+            cls: "boot-line--ok",
+            delay: 150,
+          },
+          {
+            text: "CPU: Intel i7-13700K @ 5.4GHz",
+            cls: "boot-line--system",
+            delay: 120,
+          },
+          {
+            text: "GPU: Integrated Neural Display",
+            cls: "boot-line--system",
+            delay: 120,
+          },
+          {
+            text: "Storage: 512GB NVMe SSD",
+            cls: "boot-line--system",
+            delay: 100,
+          },
+          {
+            text: "Network: Ethernet 1Gbps [CONNECTED]",
+            cls: "boot-line--ok",
+            delay: 130,
+          },
+          { text: "", cls: "boot-line--system", delay: 80 },
+          {
+            text: "═══════════════════════════════════════",
+            cls: "boot-line--header",
+            delay: 100,
+          },
+          {
+            text: "  PORTFOLIO SYSTEM v1.0",
+            cls: "boot-line--header",
+            delay: 100,
+          },
+          {
+            text: "═══════════════════════════════════════",
+            cls: "boot-line--header",
+            delay: 150,
+          },
+          { text: "", cls: "boot-line--system", delay: 80 },
+          {
+            text: "Loading kernel modules...",
+            cls: "boot-line--system",
+            delay: 200,
+          },
+          {
+            text: "[OK] particle_engine.sys",
+            cls: "boot-line--ok",
+            delay: 100,
+          },
+          { text: "[OK] glass_renderer.sys", cls: "boot-line--ok", delay: 80 },
+          { text: "[OK] tilt_physics.sys", cls: "boot-line--ok", delay: 90 },
+          {
+            text: "[WARN] coffee_supply.sys — LOW",
+            cls: "boot-line--warn",
+            delay: 120,
+          },
+          { text: "[OK] glitch_shader.sys", cls: "boot-line--ok", delay: 80 },
+          { text: "", cls: "boot-line--system", delay: 100 },
+          {
+            text: "Initializing identity matrix...",
+            cls: "boot-line--system",
+            delay: 300,
+          },
+          { text: "", cls: "boot-line--system", delay: 100 },
+          { text: "SUBJECT IDENTIFIED:", cls: "boot-line--title", delay: 200 },
+          {
+            text: "Dave Quibral",
+            cls: "boot-line--name",
+            delay: 0,
+            special: "typeChars",
+          },
+          {
+            text: "Petallano",
+            cls: "boot-line--name-sub",
+            delay: 0,
+            special: "typeChars",
+          },
+          { text: "", cls: "boot-line--system", delay: 200 },
+          {
+            text: "ROLE: Aspiring Web and Game Developer",
+            cls: "boot-line--title",
+            delay: 150,
+          },
+          { text: "", cls: "boot-line--system", delay: 100 },
+          {
+            text: "progress",
+            cls: "boot-line--progress",
+            delay: 0,
+            special: "progressBar",
+          },
+          { text: "", cls: "boot-line--system", delay: 100 },
+          {
+            text: "✓ SYSTEM READY — LAUNCHING INTERFACE",
+            cls: "boot-line--complete",
+            delay: 400,
+          },
+        ];
+
+    // ★ Type characters — faster on mobile
     function typeCharacters(container, text) {
       return new Promise((resolve) => {
         const chars = text.split("");
         let i = 0;
 
-        // Create all chars hidden first
         chars.forEach((char) => {
           const span = document.createElement("span");
           span.classList.add("boot-char");
@@ -139,9 +231,14 @@
 
           allChars[i].classList.add("boot-char--visible");
 
-          // Random speed variation — sometimes fast burst, sometimes pause
-          const baseSpeed = 50;
-          const variation = Math.random() > 0.85 ? 120 : Math.random() * 30;
+          // ★ Faster typing speed on mobile
+          const baseSpeed = isMobile ? 35 : 50;
+          const variation =
+            Math.random() > 0.85
+              ? isMobile
+                ? 60
+                : 120
+              : Math.random() * (isMobile ? 15 : 30);
           i++;
           setTimeout(revealNext, baseSpeed + variation);
         }
@@ -218,13 +315,12 @@
         }
 
         if (entry.special === "typeChars") {
-          // Show line container first
           line.classList.add("boot-line--visible");
           await typeCharacters(line, entry.text);
 
-          // Glitch flash when name appears
           triggerGlitch();
-          await sleep(200);
+          // ★ Faster glitch pause on mobile
+          await sleep(isMobile ? 120 : 200);
         } else if (entry.special === "progressBar") {
           line.classList.add("boot-line--visible");
           await animateProgress(line);
@@ -239,26 +335,26 @@
         linesContainer.scrollTop = linesContainer.scrollHeight;
       }
 
-      // ── Boot Complete — Dismiss Screen ──
-      await sleep(600);
+      // ★ Boot Complete — Faster dismiss on mobile
+      await sleep(isMobile ? 400 : 600);
 
       // Final big glitch
       triggerGlitch();
-      await sleep(200);
+      await sleep(isMobile ? 150 : 200);
       triggerGlitch();
-      await sleep(100);
+      await sleep(isMobile ? 80 : 100);
 
       // Flicker and fade out
       screen.classList.add("boot-screen--complete");
 
-      await sleep(800);
+      await sleep(isMobile ? 500 : 800);
       screen.classList.add("boot-screen--hidden");
 
       // Unlock scroll
       document.body.style.overflow = "";
 
       // Small delay then let hero reveals kick in
-      await sleep(200);
+      await sleep(isMobile ? 150 : 200);
 
       // Trigger hero reveals
       const heroReveals = document.querySelectorAll(".hero .reveal");
@@ -276,7 +372,7 @@
         return;
       }
 
-      // Run the boot
+      // Run the boot every time
       runBoot();
     }
 
@@ -742,7 +838,6 @@
 
     function type() {
       const current = titles[titleIndex];
-
       if (isDeleting) {
         element.textContent = current.substring(0, charIndex - 1);
         charIndex--;
@@ -750,9 +845,7 @@
         element.textContent = current.substring(0, charIndex + 1);
         charIndex++;
       }
-
       let delay = isDeleting ? 40 : 80;
-
       if (!isDeleting && charIndex === current.length) {
         delay = 2500;
         isDeleting = true;
@@ -761,7 +854,6 @@
         titleIndex = (titleIndex + 1) % titles.length;
         delay = 500;
       }
-
       timeout = setTimeout(type, delay);
     }
 
@@ -782,10 +874,8 @@
   const ScrollReveal = (() => {
     function init() {
       const reveals = document.querySelectorAll(".reveal");
-
       if (!reveals.length) return;
 
-      // Only auto-reveal hero if boot screen is already hidden
       const bootScreen = document.getElementById("bootScreen");
       const bootAlreadyDone =
         !bootScreen ||
@@ -808,10 +898,7 @@
             }
           });
         },
-        {
-          threshold: 0.1,
-          rootMargin: "0px 0px -60px 0px",
-        },
+        { threshold: 0.1, rootMargin: "0px 0px -60px 0px" },
       );
 
       reveals.forEach((el) => {
@@ -823,6 +910,7 @@
 
     return { init };
   })();
+
   // ─────────────────────────────────────────
   // 4. NAVIGATION
   // ─────────────────────────────────────────
@@ -844,15 +932,12 @@
 
       const sections = document.querySelectorAll(".section, .hero");
       let current = "";
-
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect();
-        const top = rect.top;
-        if (top <= 200) {
+        if (rect.top <= 200) {
           current = section.getAttribute("id");
         }
       });
-
       navLinks.forEach((link) => {
         link.classList.remove("nav__link--active");
         if (link.getAttribute("data-section") === current) {
@@ -888,22 +973,18 @@
     function openMenu() {
       if (isOpen) return;
       isOpen = true;
-
       links.classList.add("nav__links--open");
       toggle.classList.add("nav__hamburger--open");
       toggle.setAttribute("aria-expanded", "true");
-
       lockScroll();
     }
 
     function closeMenu() {
       if (!isOpen) return;
       isOpen = false;
-
       links.classList.remove("nav__links--open");
       toggle.classList.remove("nav__hamburger--open");
       toggle.setAttribute("aria-expanded", "false");
-
       unlockScroll();
     }
 
@@ -914,45 +995,33 @@
 
     function init() {
       window.addEventListener("scroll", handleScroll, { passive: true });
-
       if (toggle) {
         toggle.addEventListener("click", (e) => {
           e.stopPropagation();
           toggleMenu();
         });
       }
-
       navLinks.forEach((link) => {
         link.addEventListener("click", () => {
           closeMenu();
         });
       });
-
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && isOpen) {
-          closeMenu();
-        }
+        if (e.key === "Escape" && isOpen) closeMenu();
       });
-
       window.addEventListener("resize", () => {
-        if (window.innerWidth > 768 && isOpen) {
-          closeMenu();
-        }
+        if (window.innerWidth > 768 && isOpen) closeMenu();
       });
-
       if (links) {
         links.addEventListener(
           "touchmove",
           (e) => {
             const isScrollable = links.scrollHeight > links.clientHeight;
-            if (!isScrollable) {
-              e.preventDefault();
-            }
+            if (!isScrollable) e.preventDefault();
           },
           { passive: false },
         );
       }
-
       handleScroll();
     }
 
@@ -964,7 +1033,6 @@
   // ─────────────────────────────────────────
   const ScrollProgress = (() => {
     const bar = document.getElementById("scrollProgress");
-
     function update() {
       const scrollTop = window.scrollY;
       const docHeight =
@@ -972,11 +1040,9 @@
       const progress = (scrollTop / docHeight) * 100;
       if (bar) bar.style.width = progress + "%";
     }
-
     function init() {
       window.addEventListener("scroll", update, { passive: true });
     }
-
     return { init };
   })();
 
@@ -994,19 +1060,14 @@
 
     async function handleSubmit(e) {
       e.preventDefault();
-
-      // Hide previous messages
       if (successMsg) successMsg.hidden = true;
       if (errorMsg) errorMsg.hidden = true;
 
-      // Add loading state
       form.classList.add("contact__form--submitting");
       submitBtn.classList.add("contact__submit-btn--loading");
       submitBtn.disabled = true;
 
       const formData = new FormData(form);
-
-      // Convert to JSON for Web3Forms
       const data = Object.fromEntries(formData);
 
       try {
@@ -1018,57 +1079,45 @@
           },
           body: JSON.stringify(data),
         });
-
         const result = await response.json();
-
         if (result.success) {
-          // Success
           if (successMsg) {
             successMsg.hidden = false;
             successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
           }
           form.reset();
-
-          // Auto-hide after 10 seconds
           setTimeout(() => {
             if (successMsg) successMsg.hidden = true;
           }, 10000);
         } else {
-          // Error
           throw new Error(result.message || "Submission failed");
         }
       } catch (error) {
         console.error("Form error:", error);
         if (errorMsg) {
           errorMsg.hidden = false;
-          if (errorText) {
+          if (errorText)
             errorText.textContent =
               error.message || "Failed to send. Please try again.";
-          }
           errorMsg.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       } finally {
-        // Remove loading state
         form.classList.remove("contact__form--submitting");
         submitBtn.classList.remove("contact__submit-btn--loading");
         submitBtn.disabled = false;
       }
     }
 
-    // Validation feedback
     function setupValidation() {
       const inputs = form.querySelectorAll(".form-input");
-
       inputs.forEach((input) => {
         input.addEventListener("invalid", (e) => {
           e.preventDefault();
           input.classList.add("form-input--invalid");
         });
-
         input.addEventListener("input", () => {
-          if (input.validity.valid) {
+          if (input.validity.valid)
             input.classList.remove("form-input--invalid");
-          }
         });
       });
     }
@@ -1101,7 +1150,6 @@
 
       panels.forEach((panel) => {
         panel.setAttribute("data-tilt", "");
-
         const glow = document.createElement("div");
         glow.classList.add("tilt-glow");
         panel.style.position = "relative";
@@ -1111,7 +1159,6 @@
         panel.addEventListener("mouseenter", () => {
           panel.style.transition = "none";
         });
-
         panel.addEventListener("mousemove", (e) => {
           const rect = panel.getBoundingClientRect();
           const x = e.clientX - rect.left;
@@ -1126,31 +1173,15 @@
               Math.pow((y - centerY) / centerY, 2),
           );
           const liftAmount = Math.max(0, (1 - distFromCenter) * 12);
-
-          panel.style.transform = `
-            perspective(1200px)
-            rotateX(${rotateX}deg)
-            rotateY(${rotateY}deg)
-            translateY(-${liftAmount}px)
-            scale3d(1.02, 1.02, 1.02)
-          `;
-
+          panel.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-${liftAmount}px) scale3d(1.02, 1.02, 1.02)`;
           const glowX = (x / rect.width) * 100;
           const glowY = (y / rect.height) * 100;
           glow.style.setProperty("--glow-x", `${glowX}%`);
           glow.style.setProperty("--glow-y", `${glowY}%`);
         });
-
         panel.addEventListener("mouseleave", () => {
-          panel.style.transition = `
-            transform 0.6s cubic-bezier(0.03, 0.98, 0.52, 0.99),
-            box-shadow 0.6s ease
-          `;
-          panel.style.transform = `
-            perspective(1200px)
-            rotateX(0deg) rotateY(0deg)
-            translateY(0px) scale3d(1, 1, 1)
-          `;
+          panel.style.transition = `transform 0.6s cubic-bezier(0.03, 0.98, 0.52, 0.99), box-shadow 0.6s ease`;
+          panel.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px) scale3d(1, 1, 1)`;
         });
       });
 
@@ -1169,7 +1200,6 @@
     function init() {
       if ("ontouchstart" in window) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
       const buttons = document.querySelectorAll(".btn[data-magnetic]");
       buttons.forEach((btn) => {
         const strength = 0.3;
@@ -1184,7 +1214,6 @@
         });
       });
     }
-
     return { init };
   })();
 
@@ -1193,7 +1222,6 @@
   // ─────────────────────────────────────────
   const CursorGlow = (() => {
     let orb;
-
     function init() {
       if ("ontouchstart" in window) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -1219,15 +1247,12 @@
       document.addEventListener("mousemove", (e) => {
         targetX = e.clientX;
         targetY = e.clientY;
-        if (!orb.classList.contains("cursor-glow--visible")) {
+        if (!orb.classList.contains("cursor-glow--visible"))
           orb.classList.add("cursor-glow--visible");
-        }
       });
-
       document.addEventListener("mouseout", (e) => {
-        if (e.relatedTarget === null) {
+        if (e.relatedTarget === null)
           orb.classList.remove("cursor-glow--visible");
-        }
       });
 
       const interactives = document.querySelectorAll(
@@ -1241,10 +1266,8 @@
           orb.classList.remove("cursor-glow--hover");
         });
       });
-
       animate();
     }
-
     return { init };
   })();
 
@@ -1254,7 +1277,6 @@
   const AntiGravityFloat = (() => {
     function init() {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
       const floatTargets = [
         { selector: ".hero__scroll-indicator", delay: "" },
         {
@@ -1266,7 +1288,6 @@
           delay: "antigravity-float--delay-2",
         },
       ];
-
       floatTargets.forEach(({ selector, delay }) => {
         const el = document.querySelector(selector);
         if (el) {
@@ -1274,12 +1295,10 @@
           if (delay) el.classList.add(delay);
         }
       });
-
       document.querySelectorAll(".skill-tag").forEach((tag, i) => {
         tag.style.animationDelay = `${-(i * 0.4)}s`;
       });
     }
-
     return { init };
   })();
 
@@ -1299,7 +1318,6 @@
 
     if (!modal) return { init: () => {} };
 
-    // Logo data configuration
     const logoData = {
       pup: {
         headerTitle: "pup_identity.sh",
@@ -1327,6 +1345,7 @@
 
     let isAnimating = false;
     let currentTimeouts = [];
+    let scrollYBeforeOpen = 0;
 
     function sleep(ms) {
       return new Promise((resolve) => {
@@ -1340,7 +1359,6 @@
       currentTimeouts = [];
     }
 
-    // Type characters one by one into a line element
     async function typeLineChars(lineEl, text) {
       const chars = text.split("");
       chars.forEach((char) => {
@@ -1354,42 +1372,29 @@
         }
         lineEl.appendChild(span);
       });
-
       const allChars = lineEl.querySelectorAll(".logo-modal__char");
       for (let i = 0; i < allChars.length; i++) {
         allChars[i].classList.add("logo-modal__char--visible");
-        // Sound-like speed variation
         const speed = 25 + (Math.random() > 0.85 ? 60 : Math.random() * 15);
         await sleep(speed);
       }
-
-      // Flash effect when line completes
       lineEl.classList.add("logo-modal__text-line--scanned");
     }
 
     async function runAnimation(data) {
       isAnimating = true;
-
-      // Set header
       headerTitle.textContent = data.headerTitle;
-
-      // Reset elements
       cmdEl.style.width = "0";
       cmdEl.classList.remove("logo-modal__prompt-cmd--typing");
       logoDisplay.classList.remove("logo-modal__logo-display--visible");
       logoDisplay.innerHTML = "";
       textLinesEl.innerHTML = "";
       cursorLine.classList.remove("logo-modal__cursor-line--visible");
-      closeBtn.classList.remove("logo-modal__close--visible");
 
-      // Set command text
       cmdEl.textContent = data.command;
-
-      // Phase 1: Type the command
       await sleep(300);
       cmdEl.classList.add("logo-modal__prompt-cmd--typing");
 
-      // Phase 2: Show logo with 3D flip
       await sleep(1000);
       const logoImg = document.createElement("img");
       logoImg.src = data.imgSrc;
@@ -1399,71 +1404,49 @@
       logoDisplay.appendChild(logoImg);
       logoDisplay.classList.add("logo-modal__logo-display--visible");
 
-      // Phase 3: Type text lines one by one
       await sleep(500);
-
       for (let i = 0; i < data.lines.length; i++) {
         const lineEl = document.createElement("div");
         lineEl.classList.add("logo-modal__text-line");
         textLinesEl.appendChild(lineEl);
-
-        // Make line visible (container)
         await sleep(150);
         lineEl.classList.add("logo-modal__text-line--visible");
-
-        // Type characters
         await typeLineChars(lineEl, data.lines[i]);
-
         await sleep(200);
       }
 
-      // Phase 4: Show cursor and close button
       await sleep(300);
       cursorLine.classList.add("logo-modal__cursor-line--visible");
       closeBtn.classList.add("logo-modal__close--visible");
-
       isAnimating = false;
     }
 
     function openModal(logoKey) {
       const data = logoData[logoKey];
       if (!data) return;
-
-      // ★ Show close button IMMEDIATELY (never trap the user)
       closeBtn.classList.add("logo-modal__close--visible");
-
-      // ★ Use robust scroll lock (same pattern as Navigation)
       scrollYBeforeOpen = window.scrollY;
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollYBeforeOpen}px`;
       document.body.style.left = "0";
       document.body.style.right = "0";
       document.body.style.overflow = "hidden";
-
       modal.classList.add("logo-modal--active", "logo-modal--entering");
       modal.setAttribute("aria-hidden", "false");
-
       setTimeout(() => {
         modal.classList.remove("logo-modal--entering");
       }, 500);
-
-      // ★ Catch animation errors so scroll never stays locked
       runAnimation(data).catch((err) => {
         console.error("[LogoModal] Animation error:", err);
         isAnimating = false;
       });
     }
 
-    let scrollYBeforeOpen = 0;
-
     function closeModal() {
       clearAllTimeouts();
       isAnimating = false;
-
       modal.classList.remove("logo-modal--active");
       modal.setAttribute("aria-hidden", "true");
-
-      // ★ Robust scroll unlock
       const scrollY = scrollYBeforeOpen;
       document.body.style.position = "";
       document.body.style.top = "";
@@ -1471,7 +1454,6 @@
       document.body.style.right = "";
       document.body.style.overflow = "";
       window.scrollTo(0, scrollY);
-
       setTimeout(() => {
         cmdEl.classList.remove("logo-modal__prompt-cmd--typing");
         cmdEl.style.width = "0";
@@ -1485,42 +1467,30 @@
 
     function init() {
       const logos = document.querySelectorAll(".affiliation-logo");
-
       logos.forEach((logo) => {
         const alt = (logo.getAttribute("alt") || "").toLowerCase();
         let logoKey = null;
-
-        if (alt.includes("polytechnic") || alt.includes("pup")) {
-          logoKey = "pup";
-        } else if (alt.includes("ibits") || alt.includes("bits")) {
+        if (alt.includes("polytechnic") || alt.includes("pup")) logoKey = "pup";
+        else if (alt.includes("ibits") || alt.includes("bits"))
           logoKey = "ibits";
-        }
 
         if (logoKey) {
-          // Click/tap handler
           logo.addEventListener("click", (e) => {
             e.preventDefault();
-
-            // Tap ripple animation
             logo.classList.add("affiliation-logo--tapped");
             setTimeout(() => {
               logo.classList.remove("affiliation-logo--tapped");
             }, 400);
-
-            // Small delay for the ripple to show
             setTimeout(() => {
               openModal(logoKey);
             }, 200);
           });
-
-          // Make keyboard accessible
           logo.setAttribute("tabindex", "0");
           logo.setAttribute("role", "button");
           logo.setAttribute(
             "aria-label",
             `View ${logoKey.toUpperCase()} information`,
           );
-
           logo.addEventListener("keydown", (e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
@@ -1529,19 +1499,14 @@
           });
         }
       });
-
-      // Close handlers
       if (closeBtn) closeBtn.addEventListener("click", closeModal);
       if (backdrop) backdrop.addEventListener("click", closeModal);
-
-      // ESC key close
       document.addEventListener("keydown", (e) => {
         if (
           e.key === "Escape" &&
           modal.classList.contains("logo-modal--active")
-        ) {
+        )
           closeModal();
-        }
       });
     }
 
@@ -1576,7 +1541,6 @@
       currentTimeouts = [];
     }
 
-    // The terminal script
     const terminalScript = [
       { type: "prompt", text: "❯ ./download_resume.sh", delay: 100 },
       { type: "blank", delay: 150 },
@@ -1688,7 +1652,6 @@
         await sleep(entry.delay || 80);
         return;
       }
-
       if (entry.type === "prompt") {
         line.classList.add("cv-modal__line--prompt");
         line.innerHTML = `<span class="cv-prompt">❯</span> ${entry.text.replace("❯ ", "")}`;
@@ -1698,7 +1661,6 @@
         await sleep(80);
         return;
       }
-
       if (entry.type === "progress") {
         line.classList.add("cv-modal__line--progress-text");
         line.textContent = `Building resume... 0%`;
@@ -1710,10 +1672,8 @@
           "cv-modal__line",
           "cv-modal__line--visible",
         );
-
         const progressEl = document.createElement("div");
         progressEl.classList.add("cv-modal__progress");
-
         const progressBar = document.createElement("div");
         progressBar.classList.add(
           "cv-modal__progress-bar",
@@ -1723,80 +1683,55 @@
         progressWrapper.appendChild(progressEl);
         linesContainer.appendChild(progressWrapper);
 
-        // Animate progress
         const steps = [12, 25, 38, 45, 52, 58, 62, 65, 67];
         for (let i = 0; i < steps.length; i++) {
           progressBar.style.width = steps[i] + "%";
           line.textContent = `Building resume... ${steps[i]}%`;
           await sleep(Math.random() * 150 + 80);
         }
-
-        // Stuck effect
         for (let i = 0; i < 3; i++) {
           line.textContent = `Building resume... 67%`;
           await sleep(300);
-          line.textContent = `Building resume... 67%`;
-
-          // Add spinner dots
           if (i === 2) {
             const spinner = document.createElement("span");
             spinner.classList.add("cv-modal__spinner");
-            spinner.innerHTML = `
-              <span class="cv-modal__spinner-dot"></span>
-              <span class="cv-modal__spinner-dot"></span>
-              <span class="cv-modal__spinner-dot"></span>
-            `;
+            spinner.innerHTML = `<span class="cv-modal__spinner-dot"></span><span class="cv-modal__spinner-dot"></span><span class="cv-modal__spinner-dot"></span>`;
             line.appendChild(spinner);
           }
           await sleep(200);
         }
-
         await sleep(500);
-
-        // Remove spinner, show stuck
         line.textContent = `Building resume... 67% — STALLED`;
         line.style.color = "rgba(255, 80, 80, 0.6)";
         progressBar.style.background =
           "linear-gradient(90deg, rgba(255, 80, 80, 0.4), rgba(255, 80, 80, 0.7))";
-
         await sleep(400);
         return;
       }
 
-      // Standard line types
       const typeClass = `cv-modal__line--${entry.type}`;
       line.classList.add(typeClass);
       line.textContent = entry.text;
       linesContainer.appendChild(line);
-
       await sleep(entry.delay || 100);
       line.classList.add("cv-modal__line--visible");
-
-      // Auto-scroll
       linesContainer.scrollTop = linesContainer.scrollHeight;
     }
 
     async function runTerminal() {
       isAnimating = true;
-
-      // Reset
       linesContainer.innerHTML = "";
       cursorLine.classList.remove("cv-modal__cursor-line--visible");
       closeBtn.classList.remove("cv-modal__close--visible");
-
       await sleep(400);
-
       for (let i = 0; i < terminalScript.length; i++) {
         if (!modal.classList.contains("cv-modal--active")) break;
         await createLine(terminalScript[i]);
         linesContainer.scrollTop = linesContainer.scrollHeight;
       }
-
-      // Show cursor and close
       await sleep(300);
       cursorLine.classList.add("cv-modal__cursor-line--visible");
       closeBtn.classList.add("cv-modal__close--visible");
-
       isAnimating = false;
     }
 
@@ -1804,22 +1739,18 @@
       document.body.style.overflow = "hidden";
       modal.classList.add("cv-modal--active", "cv-modal--entering");
       modal.setAttribute("aria-hidden", "false");
-
       setTimeout(() => {
         modal.classList.remove("cv-modal--entering");
       }, 500);
-
       runTerminal();
     }
 
     function closeModal() {
       clearAllTimeouts();
       isAnimating = false;
-
       modal.classList.remove("cv-modal--active");
       modal.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
-
       setTimeout(() => {
         linesContainer.innerHTML = "";
         cursorLine.classList.remove("cv-modal__cursor-line--visible");
@@ -1828,23 +1759,15 @@
     }
 
     function init() {
-      // Hijack the CV button
       cvBtn.addEventListener("click", (e) => {
         e.preventDefault();
         openModal();
       });
-
-      // Close handlers
       if (closeBtn) closeBtn.addEventListener("click", closeModal);
       if (backdrop) backdrop.addEventListener("click", closeModal);
-
       document.addEventListener("keydown", (e) => {
-        if (
-          e.key === "Escape" &&
-          modal.classList.contains("cv-modal--active")
-        ) {
+        if (e.key === "Escape" && modal.classList.contains("cv-modal--active"))
           closeModal();
-        }
       });
     }
 
@@ -1860,7 +1783,6 @@
     const closeBtn = document.getElementById("tgameClose");
     const openBtn = document.getElementById("navGamesBtn");
     const headerTitle = document.getElementById("tgameHeaderTitle");
-
     const menuScreen = document.getElementById("tgameMenu");
     const gameScreen = document.getElementById("tgameGameScreen");
     const bootLinesEl = document.getElementById("tgameBootLines");
@@ -1874,14 +1796,13 @@
 
     if (!modal || !openBtn) return { init: () => {} };
 
-    let currentGame = null;
-    let gameLoopId = null;
-    let gameIntervalId = null;
-    let bootDone = false;
-    let timeouts = [];
-    let activeKeyHandlers = [];
-    let activeTouchHandlers = [];
-
+    let currentGame = null,
+      gameLoopId = null,
+      gameIntervalId = null,
+      bootDone = false;
+    let timeouts = [],
+      activeKeyHandlers = [],
+      activeTouchHandlers = [];
     const monoFont = '"JetBrains Mono","Fira Code","Consolas",monospace';
 
     function sleep(ms) {
@@ -1890,12 +1811,10 @@
         timeouts.push(id);
       });
     }
-
     function clearAllTimeouts() {
       timeouts.forEach((id) => clearTimeout(id));
       timeouts = [];
     }
-
     function removeAllHandlers() {
       activeKeyHandlers.forEach((h) =>
         document.removeEventListener(h.type, h.fn),
@@ -1906,41 +1825,33 @@
       );
       activeTouchHandlers = [];
     }
-
     function addKeyHandler(type, fn) {
       document.addEventListener(type, fn);
       activeKeyHandlers.push({ type, fn });
     }
-
     function addTouchHandler(el, type, fn) {
       el.addEventListener(type, fn, { passive: false });
       activeTouchHandlers.push({ el, type, fn });
     }
-
-    // ── Detect mobile ──
     function isMobile() {
       return "ontouchstart" in window || window.innerWidth <= 768;
     }
 
-    // ── Get proper canvas size ──
     function getCanvasSize() {
       const areaRect = gameArea.getBoundingClientRect();
-      // Reserve space for header, controls, dpad, footer
-      const dpadHeight = isMobile() ? 130 : 0;
       const maxW = Math.floor(areaRect.width - 8);
       const maxH = Math.floor(areaRect.height - 8);
-      const size = Math.min(maxW, maxH, 400);
-      return size;
+      return Math.min(maxW, maxH, 400);
     }
 
     function getRectSize() {
       const areaRect = gameArea.getBoundingClientRect();
-      const w = Math.min(Math.floor(areaRect.width - 8), 400);
-      const h = Math.min(Math.floor(areaRect.height - 8), 300);
-      return { w, h };
+      return {
+        w: Math.min(Math.floor(areaRect.width - 8), 400),
+        h: Math.min(Math.floor(areaRect.height - 8), 300),
+      };
     }
 
-    // ─── Boot Sequence ───
     const bootScript = [
       { text: "> Initializing arcade subsystem...", cls: "" },
       { text: "[OK] Loading game engines", cls: "--ok" },
@@ -1952,7 +1863,6 @@
     async function runBoot() {
       bootLinesEl.innerHTML = "";
       menuContent.style.display = "none";
-
       for (let i = 0; i < bootScript.length; i++) {
         const el = document.createElement("div");
         el.classList.add("tgame__boot-line");
@@ -1963,7 +1873,6 @@
         await sleep(120 + Math.random() * 80);
         el.classList.add("tgame__boot-line--visible");
       }
-
       await sleep(300);
       menuContent.style.display = "flex";
       menuContent.style.flexDirection = "column";
@@ -1971,7 +1880,6 @@
       bootDone = true;
     }
 
-    // ─── Modal Controls ───
     function openModal() {
       document.body.style.overflow = "hidden";
       modal.classList.add("tgame--active", "tgame--entering");
@@ -2005,8 +1913,6 @@
       gameArea.innerHTML = "";
       scoreEl.textContent = "0";
       infoEl.textContent = "";
-
-      // Small delay to let layout calculate
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (gameName === "snake") launchSnake();
@@ -2029,18 +1935,14 @@
       currentGame = null;
     }
 
-    // ─── Game Over Overlay ───
     function showGameOver(finalScore, retryFn, customTitle) {
       const overlay = document.createElement("div");
       overlay.classList.add("tgame__gameover");
-
       overlay.innerHTML = `
         <div class="tgame__gameover-text">${customTitle || "GAME OVER"}</div>
         <div class="tgame__gameover-score">Final Score: ${finalScore}</div>
         <button class="tgame__gameover-btn" data-action="retry">[ RETRY ]</button>
-        <button class="tgame__gameover-btn" data-action="menu">[ MENU ]</button>
-      `;
-
+        <button class="tgame__gameover-btn" data-action="menu">[ MENU ]</button>`;
       overlay
         .querySelector('[data-action="retry"]')
         .addEventListener("click", () => {
@@ -2053,13 +1955,10 @@
           overlay.remove();
           showMenu();
         });
-
       gameArea.appendChild(overlay);
     }
 
-    // ═══════════════════════════════════
-    // GAME 1: SNAKE
-    // ═══════════════════════════════════
+    // ═══ SNAKE ═══
     function launchSnake() {
       currentGame = "snake";
       gameTitleEl.textContent = "SNAKE.exe";
@@ -2067,12 +1966,9 @@
       infoEl.textContent = isMobile()
         ? "// Use D-pad to move"
         : "// Arrow keys or WASD";
-
-      // Canvas setup
       const canvas = document.createElement("canvas");
       canvas.classList.add("tgame__canvas");
       gameArea.appendChild(canvas);
-
       const cellSize = isMobile() ? 14 : 16;
       const canvasPixels = getCanvasSize();
       const cols = Math.floor(canvasPixels / cellSize);
@@ -2081,27 +1977,23 @@
       canvas.height = rows * cellSize;
       canvas.style.width = canvas.width + "px";
       canvas.style.height = canvas.height + "px";
-
       const ctx = canvas.getContext("2d");
-
-      // Show d-pad on mobile
       if (isMobile()) dpad.style.display = "flex";
 
-      // State
       let snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
-      let dir = { x: 1, y: 0 };
-      let nextDir = { x: 1, y: 0 };
-      let food = null;
-      let score = 0;
-      let alive = true;
-      let baseSpeed = isMobile() ? 160 : 140;
-      let speed = baseSpeed;
-      let lastTick = 0;
-      let dirChanged = false;
+      let dir = { x: 1, y: 0 },
+        nextDir = { x: 1, y: 0 },
+        food = null,
+        score = 0,
+        alive = true;
+      let baseSpeed = isMobile() ? 160 : 140,
+        speed = baseSpeed,
+        lastTick = 0,
+        dirChanged = false;
 
       function spawnFood() {
-        let pos;
-        let attempts = 0;
+        let pos,
+          attempts = 0;
         do {
           pos = {
             x: Math.floor(Math.random() * cols),
@@ -2114,11 +2006,10 @@
         );
         return pos;
       }
-
       food = spawnFood();
 
       function setDir(d) {
-        if (dirChanged) return; // One direction change per tick
+        if (dirChanged) return;
         const map = {
           up: { x: 0, y: -1 },
           down: { x: 0, y: 1 },
@@ -2127,13 +2018,11 @@
         };
         const nd = map[d];
         if (!nd) return;
-        // Prevent 180 reversal
         if (snake.length > 1 && nd.x === -dir.x && nd.y === -dir.y) return;
         nextDir = { ...nd };
         dirChanged = true;
       }
 
-      // Keyboard
       const keyDown = (e) => {
         if (currentGame !== "snake" || !alive) return;
         const keyMap = {
@@ -2156,97 +2045,65 @@
         }
       };
       addKeyHandler("keydown", keyDown);
-
-      // D-pad buttons
       document.querySelectorAll(".tgame__dpad-btn").forEach((btn) => {
-        const handler = (e) => {
+        addTouchHandler(btn, "click", (e) => {
           e.preventDefault();
           if (currentGame === "snake" && alive) setDir(btn.dataset.dir);
-        };
-        addTouchHandler(btn, "click", handler);
+        });
       });
-
-      // Swipe support
       let touchStartX = 0,
         touchStartY = 0;
-      const swipeStart = (e) => {
+      addTouchHandler(canvas, "touchstart", (e) => {
         const t = e.touches[0];
         touchStartX = t.clientX;
         touchStartY = t.clientY;
-      };
-      const swipeEnd = (e) => {
+      });
+      addTouchHandler(canvas, "touchend", (e) => {
         if (currentGame !== "snake" || !alive) return;
         const t = e.changedTouches[0];
         const dx = t.clientX - touchStartX;
         const dy = t.clientY - touchStartY;
-        const minSwipe = 30;
-        if (Math.abs(dx) < minSwipe && Math.abs(dy) < minSwipe) return;
-        if (Math.abs(dx) > Math.abs(dy)) {
-          setDir(dx > 0 ? "right" : "left");
-        } else {
-          setDir(dy > 0 ? "down" : "up");
-        }
-      };
-      addTouchHandler(canvas, "touchstart", swipeStart);
-      addTouchHandler(canvas, "touchend", swipeEnd);
+        if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
+        if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? "right" : "left");
+        else setDir(dy > 0 ? "down" : "up");
+      });
 
       function tick() {
         dir = { ...nextDir };
         dirChanged = false;
-
         const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-
-        // Wall collision
         if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
           alive = false;
           return;
         }
-        // Self collision
         if (snake.some((s) => s.x === head.x && s.y === head.y)) {
           alive = false;
           return;
         }
-
         snake.unshift(head);
-
         if (head.x === food.x && head.y === food.y) {
           score += 10;
           scoreEl.textContent = score;
           food = spawnFood();
-          // Speed up slightly
           if (speed > 70) speed -= 2;
-        } else {
-          snake.pop();
-        }
+        } else snake.pop();
       }
 
       function draw() {
-        const w = canvas.width;
-        const h = canvas.height;
-
-        // Background
         ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, w, h);
-
-        // Subtle grid
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "rgba(255,255,255,0.025)";
-        for (let x = 0; x < cols; x++) {
-          for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++)
+          for (let y = 0; y < rows; y++)
             ctx.fillRect(
               x * cellSize + cellSize - 1,
               y * cellSize + cellSize - 1,
               1,
               1,
             );
-          }
-        }
-
-        // Border
         ctx.strokeStyle = "rgba(255,255,255,0.08)";
         ctx.lineWidth = 1;
-        ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
-
-        // Snake
+        ctx.strokeRect(0.5, 0.5, canvas.width - 1, canvas.height - 1);
         snake.forEach((seg, i) => {
           const brightness =
             i === 0 ? 1 : Math.max(0.25, 1 - (i / snake.length) * 0.75);
@@ -2259,8 +2116,6 @@
             cellSize - padding * 2,
           );
         });
-
-        // Food — pulsing diamond
         const pulse = Math.sin(Date.now() * 0.005) * 0.2 + 0.8;
         ctx.fillStyle = `rgba(255,255,255,${pulse})`;
         ctx.font = `bold ${cellSize - 2}px ${monoFont}`;
@@ -2275,7 +2130,6 @@
 
       function gameLoop(timestamp) {
         if (currentGame !== "snake") return;
-
         if (!alive) {
           draw();
           showGameOver(score, () => {
@@ -2284,24 +2138,18 @@
           });
           return;
         }
-
         if (!lastTick) lastTick = timestamp;
-
         if (timestamp - lastTick >= speed) {
           tick();
           lastTick = timestamp;
         }
-
         draw();
         gameLoopId = requestAnimationFrame(gameLoop);
       }
-
       gameLoopId = requestAnimationFrame(gameLoop);
     }
 
-    // ═══════════════════════════════════
-    // GAME 2: PONG
-    // ═══════════════════════════════════
+    // ═══ PONG ═══
     function launchPong() {
       currentGame = "pong";
       gameTitleEl.textContent = "PONG.exe";
@@ -2309,50 +2157,41 @@
       infoEl.textContent = isMobile()
         ? "// Use D-pad or drag"
         : "// Arrow Up/Down or W/S";
-
       const canvas = document.createElement("canvas");
       canvas.classList.add("tgame__canvas");
       gameArea.appendChild(canvas);
-
       const { w, h } = getRectSize();
       canvas.width = w;
       canvas.height = h;
       canvas.style.width = w + "px";
       canvas.style.height = h + "px";
-
       const ctx = canvas.getContext("2d");
-
       if (isMobile()) dpad.style.display = "flex";
 
-      // Dimensions
-      const paddleW = 6;
-      const paddleH = Math.max(40, Math.floor(h * 0.18));
-      const ballSize = 6;
-      const paddleMargin = 14;
-      const paddleSpeed = 4;
-      const aiSpeedFactor = 0.055;
+      const paddleW = 6,
+        paddleH = Math.max(40, Math.floor(h * 0.18)),
+        ballSize = 6,
+        paddleMargin = 14,
+        paddleSpeed = 4,
+        aiSpeedFactor = 0.055;
+      let playerY = h / 2 - paddleH / 2,
+        aiY = h / 2 - paddleH / 2;
+      let ballX = w / 2,
+        ballY = h / 2,
+        ballVX = 2.5 * (Math.random() > 0.5 ? 1 : -1),
+        ballVY = (Math.random() - 0.5) * 3;
+      let playerScore = 0,
+        aiScore = 0,
+        playerMove = 0,
+        alive = true;
 
-      // State
-      let playerY = h / 2 - paddleH / 2;
-      let aiY = h / 2 - paddleH / 2;
-      let ballX = w / 2;
-      let ballY = h / 2;
-      let ballVX = 2.5 * (Math.random() > 0.5 ? 1 : -1);
-      let ballVY = (Math.random() - 0.5) * 3;
-      let playerScore = 0;
-      let aiScore = 0;
-      let playerMove = 0; // -1 up, 0 none, 1 down
-      let alive = true;
-      let touchDragY = null;
-
-      function resetBall(towardsPlayer) {
+      function resetBall(tp) {
         ballX = w / 2;
         ballY = h / 2;
-        ballVX = 2.5 * (towardsPlayer ? -1 : 1);
+        ballVX = 2.5 * (tp ? -1 : 1);
         ballVY = (Math.random() - 0.5) * 3;
       }
 
-      // Keyboard
       const keyDown = (e) => {
         if (currentGame !== "pong") return;
         if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
@@ -2375,61 +2214,47 @@
       addKeyHandler("keydown", keyDown);
       addKeyHandler("keyup", keyUp);
 
-      // D-pad — hold support
       document.querySelectorAll(".tgame__dpad-btn").forEach((btn) => {
-        const downHandler = (e) => {
+        const dh = (e) => {
           e.preventDefault();
           if (currentGame !== "pong") return;
           if (btn.dataset.dir === "up") playerMove = -1;
           if (btn.dataset.dir === "down") playerMove = 1;
         };
-        const upHandler = (e) => {
+        const uh = (e) => {
           e.preventDefault();
           if (currentGame !== "pong") return;
           playerMove = 0;
         };
-        addTouchHandler(btn, "touchstart", downHandler);
-        addTouchHandler(btn, "touchend", upHandler);
-        addTouchHandler(btn, "touchcancel", upHandler);
-        addTouchHandler(btn, "mousedown", downHandler);
-        addTouchHandler(btn, "mouseup", upHandler);
-        addTouchHandler(btn, "mouseleave", upHandler);
+        addTouchHandler(btn, "touchstart", dh);
+        addTouchHandler(btn, "touchend", uh);
+        addTouchHandler(btn, "touchcancel", uh);
+        addTouchHandler(btn, "mousedown", dh);
+        addTouchHandler(btn, "mouseup", uh);
+        addTouchHandler(btn, "mouseleave", uh);
       });
-
-      // Touch drag on canvas to move paddle
-      const touchMoveHandler = (e) => {
+      addTouchHandler(canvas, "touchmove", (e) => {
         if (currentGame !== "pong") return;
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
         const t = e.touches[0];
-        const y = t.clientY - rect.top;
-        const scaleY = canvas.height / rect.height;
-        playerY = y * scaleY - paddleH / 2;
+        playerY =
+          (t.clientY - rect.top) * (canvas.height / rect.height) - paddleH / 2;
         playerY = Math.max(0, Math.min(h - paddleH, playerY));
-      };
-      addTouchHandler(canvas, "touchmove", touchMoveHandler);
+      });
       addTouchHandler(canvas, "touchstart", (e) => {
         e.preventDefault();
       });
 
       function update() {
-        // Player paddle movement (keyboard/dpad)
-        if (playerMove !== 0) {
-          playerY += playerMove * paddleSpeed;
-        }
+        if (playerMove !== 0) playerY += playerMove * paddleSpeed;
         playerY = Math.max(0, Math.min(h - paddleH, playerY));
-
-        // AI paddle
         const aiCenter = aiY + paddleH / 2;
-        const aiTarget = ballVX > 0 ? ballY : h / 2; // Track ball when coming towards AI
+        const aiTarget = ballVX > 0 ? ballY : h / 2;
         aiY += (aiTarget - aiCenter) * aiSpeedFactor;
         aiY = Math.max(0, Math.min(h - paddleH, aiY));
-
-        // Ball movement
         ballX += ballVX;
         ballY += ballVY;
-
-        // Top/bottom bounce
         if (ballY <= 0) {
           ballY = 0;
           ballVY = Math.abs(ballVY);
@@ -2438,47 +2263,39 @@
           ballY = h - ballSize;
           ballVY = -Math.abs(ballVY);
         }
-
-        // Player paddle collision (left side)
-        const playerPaddleRight = paddleMargin + paddleW;
+        const ppr = paddleMargin + paddleW;
         if (
-          ballX <= playerPaddleRight &&
+          ballX <= ppr &&
           ballX + ballSize >= paddleMargin &&
           ballY + ballSize >= playerY &&
           ballY <= playerY + paddleH &&
           ballVX < 0
         ) {
-          ballX = playerPaddleRight;
+          ballX = ppr;
           ballVX = Math.abs(ballVX) * 1.05;
-          const hitPos =
-            (ballY + ballSize / 2 - (playerY + paddleH / 2)) / (paddleH / 2);
-          ballVY = hitPos * 4;
+          ballVY =
+            ((ballY + ballSize / 2 - (playerY + paddleH / 2)) / (paddleH / 2)) *
+            4;
           playerScore++;
           scoreEl.textContent = playerScore;
         }
-
-        // AI paddle collision (right side)
-        const aiPaddleLeft = w - paddleMargin - paddleW;
+        const apl = w - paddleMargin - paddleW;
         if (
-          ballX + ballSize >= aiPaddleLeft &&
-          ballX <= aiPaddleLeft + paddleW &&
+          ballX + ballSize >= apl &&
+          ballX <= apl + paddleW &&
           ballY + ballSize >= aiY &&
           ballY <= aiY + paddleH &&
           ballVX > 0
         ) {
-          ballX = aiPaddleLeft - ballSize;
+          ballX = apl - ballSize;
           ballVX = -Math.abs(ballVX) * 1.03;
-          const hitPos =
-            (ballY + ballSize / 2 - (aiY + paddleH / 2)) / (paddleH / 2);
-          ballVY = hitPos * 3.5;
+          ballVY =
+            ((ballY + ballSize / 2 - (aiY + paddleH / 2)) / (paddleH / 2)) *
+            3.5;
         }
-
-        // Clamp ball speed
-        const maxSpeed = 8;
-        ballVX = Math.max(-maxSpeed, Math.min(maxSpeed, ballVX));
-        ballVY = Math.max(-maxSpeed, Math.min(maxSpeed, ballVY));
-
-        // Scoring (ball out of bounds)
+        const ms = 8;
+        ballVX = Math.max(-ms, Math.min(ms, ballVX));
+        ballVY = Math.max(-ms, Math.min(ms, ballVY));
         if (ballX < -20) {
           aiScore++;
           infoEl.textContent = `// You: ${playerScore} | CPU: ${aiScore}`;
@@ -2497,16 +2314,11 @@
       }
 
       function draw() {
-        // Clear
         ctx.fillStyle = "#000";
         ctx.fillRect(0, 0, w, h);
-
-        // Border
         ctx.strokeStyle = "rgba(255,255,255,0.06)";
         ctx.lineWidth = 1;
         ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
-
-        // Center dashed line
         ctx.setLineDash([4, 8]);
         ctx.strokeStyle = "rgba(255,255,255,0.06)";
         ctx.beginPath();
@@ -2514,20 +2326,14 @@
         ctx.lineTo(Math.floor(w / 2) + 0.5, h);
         ctx.stroke();
         ctx.setLineDash([]);
-
-        // Score text
         ctx.font = `16px ${monoFont}`;
         ctx.fillStyle = "rgba(255,255,255,0.15)";
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
         ctx.fillText(String(playerScore), w / 2 - 30, 10);
         ctx.fillText(String(aiScore), w / 2 + 30, 10);
-
-        // Player paddle
         ctx.fillStyle = "rgba(255,255,255,0.9)";
         ctx.fillRect(paddleMargin, Math.round(playerY), paddleW, paddleH);
-
-        // AI paddle
         ctx.fillStyle = "rgba(255,255,255,0.45)";
         ctx.fillRect(
           w - paddleMargin - paddleW,
@@ -2535,8 +2341,6 @@
           paddleW,
           paddleH,
         );
-
-        // Ball with subtle trail
         ctx.fillStyle = "rgba(255,255,255,0.15)";
         ctx.fillRect(
           Math.round(ballX - ballVX * 0.5),
@@ -2550,7 +2354,6 @@
 
       function loop() {
         if (currentGame !== "pong") return;
-
         if (!alive) {
           draw();
           showGameOver(playerScore, () => {
@@ -2559,35 +2362,27 @@
           });
           return;
         }
-
         update();
         draw();
         gameLoopId = requestAnimationFrame(loop);
       }
-
       gameLoopId = requestAnimationFrame(loop);
     }
 
-    // ═══════════════════════════════════
-    // GAME 3: MEMORY
-    // ═══════════════════════════════════
+    // ═══ MEMORY ═══
     function launchMemory() {
       currentGame = "memory";
       gameTitleEl.textContent = "MEMORY.exe";
       headerTitle.textContent = "memory.exe";
       infoEl.textContent = "// Find all matching pairs";
       dpad.style.display = "none";
-
       const symbols = ["★", "◆", "▲", "●", "■", "✕", "♦", "◈"];
-      let cards = [...symbols, ...symbols];
-      cards = cards.sort(() => Math.random() - 0.5);
-
-      let flipped = [];
-      let matched = [];
-      let score = 0;
-      let moves = 0;
-      let locked = false;
-
+      let cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+      let flipped = [],
+        matched = [],
+        score = 0,
+        moves = 0,
+        locked = false;
       const grid = document.createElement("div");
       grid.classList.add("tgame__memory-grid");
       gameArea.appendChild(grid);
@@ -2598,22 +2393,23 @@
         card.textContent = "?";
         card.dataset.index = i;
         card.dataset.symbol = symbol;
-
         card.addEventListener("click", () => {
-          if (currentGame !== "memory") return;
-          if (locked || matched.includes(i) || flipped.includes(i)) return;
-
+          if (
+            currentGame !== "memory" ||
+            locked ||
+            matched.includes(i) ||
+            flipped.includes(i)
+          )
+            return;
           card.textContent = symbol;
           card.classList.add("tgame__memory-card--flipped");
           flipped.push(i);
-
           if (flipped.length === 2) {
             locked = true;
             moves++;
             const [a, b] = flipped;
-            const cardA = grid.children[a];
-            const cardB = grid.children[b];
-
+            const cardA = grid.children[a],
+              cardB = grid.children[b];
             if (cards[a] === cards[b]) {
               matched.push(a, b);
               score += 20;
@@ -2622,8 +2418,7 @@
               cardB.classList.add("tgame__memory-card--matched");
               flipped = [];
               locked = false;
-
-              if (matched.length === cards.length) {
+              if (matched.length === cards.length)
                 setTimeout(() => {
                   showGameOver(
                     score,
@@ -2634,11 +2429,9 @@
                     "MEMORY CLEARED",
                   );
                 }, 500);
-              }
             } else {
               cardA.classList.add("tgame__memory-card--wrong");
               cardB.classList.add("tgame__memory-card--wrong");
-
               setTimeout(() => {
                 cardA.textContent = "?";
                 cardB.textContent = "?";
@@ -2654,39 +2447,29 @@
                 locked = false;
               }, 700);
             }
-
             infoEl.textContent = `// Moves: ${moves} | Pairs: ${matched.length / 2}/${symbols.length}`;
           }
         });
-
         grid.appendChild(card);
       });
     }
 
-    // ─── Init ───
     function init() {
       openBtn.addEventListener("click", openModal);
       if (closeBtn) closeBtn.addEventListener("click", closeModal);
       if (backdrop) backdrop.addEventListener("click", closeModal);
       if (backBtn) backBtn.addEventListener("click", showMenu);
-
-      // Menu item clicks
       document.querySelectorAll(".tgame__menu-item").forEach((item) => {
         item.addEventListener("click", () => showGame(item.dataset.game));
       });
-
-      // Global keyboard
       document.addEventListener("keydown", (e) => {
         if (!modal.classList.contains("tgame--active")) return;
-
         if (e.key === "Escape") {
           e.preventDefault();
           if (currentGame) showMenu();
           else closeModal();
           return;
         }
-
-        // Number keys for menu
         if (
           !currentGame &&
           menuContent &&
@@ -2722,7 +2505,6 @@
         });
       });
     }
-
     return { init };
   })();
 
