@@ -2486,6 +2486,81 @@
   })();
 
   // ─────────────────────────────────────────
+  // 16. PROJECT FILTER (Blueprint Archive)
+  // ─────────────────────────────────────────
+  const ProjectFilter = (() => {
+    const filterBar = document.querySelector(".projects__filters");
+    const cards = Array.from(document.querySelectorAll(".project-card"));
+    const countEl = document.getElementById("projectsCount");
+    const emptyEl = document.getElementById("projectsEmpty");
+
+    if (!filterBar || !cards.length) return { init: () => {} };
+
+    const buttons = Array.from(filterBar.querySelectorAll(".filter-btn"));
+    const pad = (n) => String(n).padStart(2, "0");
+
+    function applyFilter(filter, animate) {
+      let visible = 0;
+
+      cards.forEach((card) => {
+        const match = filter === "all" || card.dataset.category === filter;
+
+        card.classList.toggle("is-hidden", !match);
+        card.classList.remove("is-filtered-in");
+
+        if (match) {
+          visible += 1;
+          if (animate) {
+            // Make sure a card restored from "hidden" is not stuck invisible
+            card.classList.add("reveal--visible");
+            // Restart the entrance animation for each newly shown card
+            void card.offsetWidth;
+            card.classList.add("is-filtered-in");
+          }
+        }
+      });
+
+      if (countEl) countEl.textContent = pad(visible);
+      if (emptyEl) emptyEl.hidden = visible !== 0;
+
+      buttons.forEach((btn) => {
+        const active = btn.dataset.filter === filter;
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-pressed", String(active));
+      });
+    }
+
+    function updateButtonCounts() {
+      buttons.forEach((btn) => {
+        const filter = btn.dataset.filter || "all";
+        const badge = btn.querySelector(".filter-btn__count");
+        if (!badge) return;
+        const total =
+          filter === "all"
+            ? cards.length
+            : cards.filter((card) => card.dataset.category === filter).length;
+        badge.textContent = pad(total);
+      });
+    }
+
+    function init() {
+      // Keep the archive index in sync with the markup
+      updateButtonCounts();
+      applyFilter("all", false);
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const filter = btn.dataset.filter || "all";
+          if (btn.classList.contains("is-active")) return;
+          applyFilter(filter, true);
+        });
+      });
+    }
+
+    return { init };
+  })();
+
+  // ─────────────────────────────────────────
   // 7. SMOOTH SCROLL
   // ─────────────────────────────────────────
   const SmoothScroll = (() => {
@@ -2516,6 +2591,7 @@
     ParticleNetwork.init();
     TypingEffect.init();
     ScrollReveal.init();
+    ProjectFilter.init();
     Navigation.init();
     ScrollProgress.init();
     ContactForm.init();
