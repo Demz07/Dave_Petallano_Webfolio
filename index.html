@@ -1340,12 +1340,11 @@
         <div class="tgame__screen tgame__screen--menu" id="tgameMenu">
           <div class="tgame__boot-lines" id="tgameBootLines"></div>
           <div class="tgame__menu-content" id="tgameMenuContent" style="display:none;">
-            <pre class="tgame__ascii-title">
- ╔══════════════════════════════╗
- ║    TERMINAL ARCADE v1.0     ║
- ║    ━━━━━━━━━━━━━━━━━━━━     ║
- ║    SELECT YOUR PROGRAM      ║
- ╚══════════════════════════════╝</pre>
+            <div class="tgame__title-box">
+              <span class="tgame__title-box-text">TERMINAL ARCADE v1.0</span>
+              <span class="tgame__title-box-rule" aria-hidden="true"></span>
+              <span class="tgame__title-box-text tgame__title-box-text--sub">SELECT YOUR PROGRAM</span>
+            </div>
             <div class="tgame__menu-list">
               <button class="tgame__menu-item" data-game="snake">
                 <span class="tgame__menu-num">[1]</span>
@@ -1362,9 +1361,14 @@
                 <span class="tgame__menu-name">MEMORY.exe</span>
                 <span class="tgame__menu-desc">— Pattern recognition test</span>
               </button>
+              <button class="tgame__menu-item" data-game="chess">
+                <span class="tgame__menu-num">[4]</span>
+                <span class="tgame__menu-name">CHESS.exe</span>
+                <span class="tgame__menu-desc">— Tactical board protocol</span>
+              </button>
             </div>
             <div class="tgame__menu-footer">
-              <span class="tgame__menu-hint">// Click to launch or press [1] [2] [3]</span>
+              <span class="tgame__menu-hint">// Click to launch or press [1] [2] [3] [4]</span>
             </div>
           </div>
         </div>
