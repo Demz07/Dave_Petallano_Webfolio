@@ -71,6 +71,39 @@ body {
   position: relative;
 }
 
+/* ── Kill the blue/grey tap flash on every tappable element ── */
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+html {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+a,
+button,
+.btn,
+.nav__link,
+.nav__games-btn,
+.filter-btn,
+.tech-tag,
+.skill-tag,
+.contact__social-link,
+.tgame__menu-item,
+.tgame__dpad-btn,
+.tgame__memory-card,
+.tgame__gameover-btn,
+.tgame__back-btn,
+.tgame__close {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  /* No blue text-selection flash when tapping/holding UI chrome */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 ::selection {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -2952,6 +2985,13 @@ body::after {
   );
 }
 
+/* Touch devices have no cursor — never paint the follow-glow orb there */
+@media (hover: none), (pointer: coarse) {
+  .cursor-glow {
+    display: none !important;
+  }
+}
+
 /* ── Skill Tags — Anti-Gravity Pop ── */
 .skill-tag {
   transition:
@@ -4321,15 +4361,39 @@ button:focus:not(:focus-visible) {
   font-weight: 600;
 }
 
-/* ── ASCII Title ── */
-.tgame__ascii-title {
+/* ── Title Box (CSS frame so the border lines always align) ── */
+.tgame__title-box {
+  align-self: center;
+  width: min(100%, 330px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 18px;
+  margin-bottom: 24px;
+  border: 3px double rgba(255, 255, 255, 0.34);
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.68);
   text-align: center;
-  margin-bottom: 24px;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
+}
+
+.tgame__title-box-text {
+  display: block;
+  white-space: nowrap;
+}
+
+.tgame__title-box-rule {
+  display: block;
+  width: 100%;
+  border-top: 3px double rgba(255, 255, 255, 0.28);
+}
+
+.tgame__title-box-text--sub {
+  font-size: 0.92em;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* ── Menu Items ── */
@@ -4527,6 +4591,122 @@ button:focus:not(:focus-visible) {
   }
 }
 
+/* ── Chess Board ── */
+.tgame__game-area--chess {
+  min-height: 300px;
+  max-height: 420px;
+}
+
+.tgame__chess {
+  --sq-size: 36px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tgame__chess-sq {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  transition: background 0.12s ease;
+}
+
+.tgame__chess-sq--light {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.tgame__chess-sq--dark {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* Last move + selection overlays */
+.tgame__chess-sq--last::before,
+.tgame__chess-sq--selected::before,
+.tgame__chess-sq--check::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tgame__chess-sq--last::before {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.tgame__chess-sq--selected::before {
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.tgame__chess-sq--check::before {
+  background: radial-gradient(
+    circle,
+    rgba(255, 70, 70, 0.45) 0%,
+    rgba(255, 70, 70, 0.08) 60%,
+    transparent 75%
+  );
+}
+
+/* Legal-move markers */
+.tgame__chess-sq--move::after,
+.tgame__chess-sq--capture::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.tgame__chess-sq--move::after {
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.tgame__chess-sq--capture::after {
+  inset: 5%;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.tgame__chess-piece {
+  position: relative;
+  z-index: 1;
+  font-family:
+    "Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols 2",
+    "Noto Sans Symbols", "Segoe UI", sans-serif;
+  font-size: calc(var(--sq-size) * 0.8);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.tgame__chess-piece--w {
+  color: #f2f2f2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+.tgame__chess-piece--b {
+  color: #0b0b0b;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
 /* ── Game Info ── */
 .tgame__game-info {
   font-family: var(--font-mono);
@@ -4718,8 +4898,11 @@ button:focus:not(:focus-visible) {
     max-height: 78vh;
   }
 
-  .tgame__ascii-title {
-    font-size: 0.52rem;
+  .tgame__title-box {
+    width: min(100%, 290px);
+    padding: 11px 14px;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
   }
 
   .tgame__menu-item {
@@ -4734,6 +4917,11 @@ button:focus:not(:focus-visible) {
   .tgame__game-area {
     min-height: 160px;
     max-height: 260px;
+  }
+
+  .tgame__game-area--chess {
+    min-height: 290px;
+    max-height: 330px;
   }
 
   .tgame__dpad-btn {
@@ -4769,6 +4957,11 @@ button:focus:not(:focus-visible) {
     max-height: 220px;
   }
 
+  .tgame__game-area--chess {
+    min-height: 270px;
+    max-height: 300px;
+  }
+
   .tgame__dpad-btn {
     width: 50px;
     height: 50px;
@@ -4801,8 +4994,11 @@ button:focus:not(:focus-visible) {
 }
 
 @media (max-width: 380px) {
-  .tgame__ascii-title {
-    font-size: 0.45rem;
+  .tgame__title-box {
+    width: min(100%, 250px);
+    padding: 9px 10px;
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
   }
 
   .tgame__body {
@@ -4858,7 +5054,7 @@ button:focus:not(:focus-visible) {
     height: 36px;
   }
 
-  .tgame__ascii-title {
+  .tgame__title-box {
     display: none;
   }
 
